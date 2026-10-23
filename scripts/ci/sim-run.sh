@@ -23,6 +23,9 @@ xcrun simctl boot "$UDID" || true
 xcrun simctl bootstatus "$UDID" -b >/dev/null 2>&1 || true
 sleep 5
 xcrun simctl status_bar "$UDID" override --time 9:41 >/dev/null 2>&1 || true
+(brew install facebook/fb/idb-companion >/dev/null 2>&1 && pip3 install --break-system-packages fb-idb >/dev/null 2>&1) ; echo "idb: $(command -v idb || echo missing)" | tee -a "$OUT/notes.txt"
+idb_companion --udid "$UDID" >/dev/null 2>&1 &
+sleep 5; idb connect "$UDID" >/dev/null 2>&1 || true
 xcrun simctl install "$UDID" "$APP"
 echo "install rc=$?" | tee -a "$OUT/notes.txt"
 
@@ -31,6 +34,8 @@ alive() { # prints pid of app or DEAD
   p=$(xcrun simctl spawn "$UDID" launchctl list | grep "$BID" | grep -v 'UIKitApplication:.*\.\(AltWidget\|SideBackup\)' | awk '{print $1}' | head -1)
   echo "${p:-NONE}"
 }
+tapl() { python3 scripts/ci/idb_tap.py "$UDID" "$1" | tee -a "$OUT/notes.txt"; }
+dumpui() { idb ui describe-all --udid "$UDID" --json 2>&1 | python3 scripts/ci/idb_dump.py > "$OUT/ui-$1.txt" 2>&1; }
 note() { echo "[$(date +%T)] $*" | tee -a "$OUT/notes.txt"; }
 dumplogs() { # $1 = label
   C=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null)
@@ -41,11 +46,11 @@ dumplogs() { # $1 = label
 }
 
 # T0: first launch, NOT onboarded (default state)
-xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; note "T0 pid=$(alive)"; dumplogs t0
+xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; tapl Allow; sleep 2; shot 00b-after-allow; note "T0 pid=$(alive)"; dumplogs t0
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # T1: cold openurl while NOT onboarded (should not crash)
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 12; shot 01-cold-url-not-onboarded; note "T1 pid=$(alive)"; dumplogs t1
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; shot 01a-dialog; tapl Open; sleep 10; shot 01-cold-url-not-onboarded; note "T1 pid=$(alive)"; dumplogs t1
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # mark onboarding complete (same key the app uses)
@@ -57,12 +62,20 @@ xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 15; shot 02-
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # T3: COLD openurl (app not running)
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 6; shot 03a-cold-url-6s; sleep 12; shot 03b-cold-url-18s; note "T3 pid=$(alive)"; dumplogs t3
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tapl Open; sleep 4; shot 03a-cold-url-8s; sleep 12; shot 03b-cold-url-20s; dumpui t3; note "T3 pid=$(alive)"; dumplogs t3
 
 # T4: WARM openurl (app running, going to background first via home)
 xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
 sleep 3; shot 04a-after-home
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 6; shot 04b-warm-url-6s; sleep 10; shot 04c-warm-url-16s; note "T4 pid=$(alive)"; dumplogs t4
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tapl Open; sleep 4; shot 04b-warm-url-8s; sleep 10; shot 04c-warm-url-16s; note "T4 pid=$(alive)"; dumplogs t4
+
+# T4b: settings page: toggle "Auto Refresh on Open"
+xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
+tapl Settings; sleep 3; shot 05a-settings; dumpui settings
+tapl Advanced; sleep 2; shot 05b-advanced; dumpui advanced
+tapl "User Customizations" || tapl Customization; sleep 2; shot 05c-customizations; dumpui custom
+for i in 1 2 3 4 5 6; do idb ui swipe --udid "$UDID" 200 700 200 250 >/dev/null 2>&1; sleep 1; done; shot 05d-scrolled; dumpui scrolled
+note "T4b pid=$(alive)"; dumplogs t4b
 
 # T5: notifications permission state (best effort)
 xcrun simctl privacy "$UDID" grant notifications "$BID" >> "$OUT/notes.txt" 2>&1; note "privacy notifications rc=$?"
