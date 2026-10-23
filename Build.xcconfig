@@ -1,7 +1,7 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
-MARKETING_VERSION = 0.7.0
+MARKETING_VERSION = 0.7.0-auto1
 CURRENT_PROJECT_VERSION = 0700
 
 // Vars to be overwritten by `CodeSigning.xcconfig` if exists
