@@ -62,7 +62,7 @@ enum AutoRefresh
     {
         guard UserDefaults.standard.isAutoRefreshOnOpenEnabled else { return }
         guard UserDefaults.standard.hasCompletedOnboarding else { return }
-        guard DatabaseManager.shared.isStarted else { return }
+        guard self.isDatabaseReady(for: .foreground) else { return }
         guard self.pendingSource == nil else { return }
 
         let now = Date()
@@ -86,6 +86,20 @@ enum AutoRefresh
         // lastAttemptDate is written by markStarted(), so a deferred request (UI busy) can retry on next activation.
         debugLog("[AutoRefresh] earliest expiration in \(Int(remaining / 3600))h, requesting refresh-all")
         self.request(.foreground)
+    }
+
+    /// False when DatabaseManager isn't started (e.g. start failed with missingAppGroup).
+    /// Logs it; for a URL request also posts a failure notification. Never touches Core Data.
+    static func isDatabaseReady(for source: Source) -> Bool
+    {
+        guard !DatabaseManager.shared.isStarted else { return true }
+
+        debugLog("[AutoRefresh] skipped: database not started (source: \(source.rawValue))")
+        if source == .url
+        {
+            self.postNotification(title: "SideStore 續簽失敗", body: "SideStore 資料庫尚未就緒")
+        }
+        return false
     }
 
     /// sidestore://refresh-all throttle: false (and logged, no notification) if the last started run was < 10 minutes ago.

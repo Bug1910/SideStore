@@ -1816,8 +1816,12 @@ private extension MyAppsViewController
         self.loadViewIfNeeded()
 
         // Not on screen yet (cold launch / other tab): keep it pending for viewDidAppear.
-        guard self.view.window != nil && self._viewDidAppear && DatabaseManager.shared.isStarted else { return }
+        guard self.view.window != nil && self._viewDidAppear else { return }
         guard let source = AutoRefresh.consumePendingSource() else { return }
+
+        // My Apps is on screen but the database failed to start (e.g. missing App Group):
+        // refreshing would end in a Core Data save on an unloaded store.
+        guard AutoRefresh.isDatabaseReady(for: source) else { return }
 
         switch source
         {
@@ -1841,19 +1845,8 @@ private extension MyAppsViewController
         }
 
         AutoRefresh.markStarted(source)
-
-        // Don't start inside the openURL / didBecomeActive callback chain: on a warm open,
-        // SceneDelegate.sceneWillEnterForeground has just kicked off reconcileInstalledApps(),
-        // whose background save merges into viewContext. Mark busy now, start a bit later.
-        self.isRefreshingAllApps = true
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            guard let self else { return }
-
-            debugLog("[AutoRefresh] running Refresh All (source: \(source.rawValue))")
-            self.performRefreshAllApps { result in
-                AutoRefresh.handleCompletion(result)
-            }
+        self.performRefreshAllApps { result in
+            AutoRefresh.handleCompletion(result)
         }
     }
 
