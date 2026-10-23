@@ -1,0 +1,32 @@
+STALL: screen unchanged >10 s during step 't4-warm-url'
+pid: NONE
+18  libsystem_pthread.dylib             0x0000000108311a28 start_wqthread + 8
+===================================================
+
+
+===================================================
+|             UNCAUGHT FATAL SIGNAL               |
+===================================================
+  • Signal: SIGABRT (Abort/Assertion Failure)
+
+Call Stack:
+0   SideStore                           0x0000000104eee254 $s9SideStore11AppDelegateC17setupCrashHandler33_0B31063FE39070D574B522AB1F271C66LLyyFys5Int32VcfU0_ + 1272
+1   SideStore                           0x0000000104eee794 $s9SideStore11AppDelegateC17setupCrashHandler33_0B31063FE39070D574B522AB1F271C66LLyyFys5Int32VcfU0_To + 12
+2   libsystem_platform.dylib            0x00000001082e7540 _sigtramp + 52
+3   libsystem_pthread.dylib             0x0000000108316338 pthread_kill + 264
+4   libsystem_c.dylib                   0x000000018017a88c abort + 116
+5   libc++abi.dylib                     0x00000001802d07d0 _ZN10__cxxabiv116__shim_type_infoD1Ev + 0
+6   libc++abi.dylib                     0x00000001802bd134 _ZSt14set_unexpectedPFvvE + 0
+7   libobjc.A.dylib                     0x000000018003f19c _ZL15_objc_terminatev + 124
+8   libc++abi.dylib                     0x00000001802cc790 _ZSt11__terminatePFvvE + 12
+9   libc++abi.dylib                     0x00000001802cf8ec __cxa_rethrow + 128
+10  libobjc.A.dylib                     0x00000001800635cc objc_exception_rethrow + 40
+11  CoreData                            0x000000018794d0f8 developerSubmittedBlockToNSManagedObjectContextPerform + 616
+12  libdispatch.dylib                   0x000000018019fe98 _dispatch_client_callout + 12
+13  libdispatch.dylib                   0x000000018018e724 _dispatch_lane_serial_drain + 984
+14  libdispatch.dylib                   0x000000018018f1e8 _dispatch_lane_invoke + 396
+15  libdispatch.dylib                   0x0000000180199ec0 _dispatch_root_queue_drain_deferred_wlh + 288
+16  libdispatch.dylib                   0x0000000180199608 _dispatch_workloop_worker_thread + 692
+17  libsystem_pthread.dylib             0x0000000108312c28 _pthread_wqthread + 288
+18  libsystem_pthread.dylib             0x0000000108311a28 start_wqthread + 8
+===================================================
