@@ -53,7 +53,14 @@ alive() {
   p=$(xcrun simctl spawn "$UDID" launchctl list | grep "$BID" | grep -v 'UIKitApplication:.*\.\(AltWidget\|SideBackup\)' | awk '{print $1}' | head -1)
   echo "${p:-NONE}"
 }
-tabi() { x=$(( (2*$1+1)*402/10 )); idb ui tap --udid "$UDID" $x 832 >/dev/null 2>&1; echo "tapped tab index $1 at $x,832" | tee -a "$OUT/notes.txt"; }
+uihash() { idb ui describe-all --udid "$UDID" --json 2>/dev/null | python3 scripts/ci/idb_dump.py | md5 -q; }
+tabi() { # $1 = tab index (0-based of 5), $2 = optional text that must be on screen afterwards; fails the step otherwise
+  before=$(uihash)
+  python3 scripts/ci/idb_tabtap.py "$UDID" "$1" 5 | tee -a "$OUT/notes.txt"; sleep 3
+  after=$(idb ui describe-all --udid "$UDID" --json 2>/dev/null | python3 scripts/ci/idb_dump.py)
+  if [ -n "${2:-}" ]; then echo "$after" | grep -q "$2" && note "tab $1: found '$2'" || fail "tab $1: expected text '$2' not on screen after tap"
+  else [ "$(echo "$after" | md5 -q)" != "$before" ] && note "tab $1: screen changed" || fail "tab $1: screen did not change after tap"; fi
+}
 tapo() { python3 scripts/ci/idb_tap.py "$UDID" "$1" 2>&1 | sed "s/^NOT FOUND/optional-not-present/" | tee -a "$OUT/notes.txt"; }
 tapl() { python3 scripts/ci/idb_tap.py "$UDID" "$1" | tee -a "$OUT/notes.txt"; }
 dumpui() { idb ui describe-all --udid "$UDID" --json 2>&1 | python3 scripts/ci/idb_dump.py > "$OUT/ui-$1.txt" 2>&1; }
@@ -141,17 +148,19 @@ xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshLastAttemptDate >> 
 xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshConsecutiveFailures >> "$OUT/notes.txt" 2>&1
 shot 04g-warm-foreground
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
+grep -a -q "refresh() called" "$OUT/app-log-t5w.txt" 2>/dev/null && note "warm url path: refresh() called OK" || fail "warm url path: no refresh() called in log"
 
 # T4c: Refresh All BUTTON in My Apps (no URL) - compare with the URL path
 step t4c-button-refresh
 xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 3; dumpui t4c-launch; shot 04d-launch
-tabi 3; sleep 3; shot 04e-myapps; dumpui t4c-myapps
+tabi 3 "Refresh All"; shot 04e-myapps; dumpui t4c-myapps
 tapl "Refresh All"; sleep 8; shot 04f-after-refresh-all-button; dumpui t4c-after; chk "T4c"; dumplogs t4c
+grep -a -q "refresh() called" "$OUT/app-log-t4c.txt" 2>/dev/null && note "button path: refresh() called OK" || fail "button path: no refresh() called in log"
 
 # T5: settings page
 step t6-settings
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
-tabi 4; sleep 3; shot 05a-settings; dumpui settings
+tabi 4; shot 05a-settings; dumpui settings
 tapl Advanced; sleep 2; shot 05b-advanced; dumpui advanced
 tapl "User Customizations" || tapl Customization; sleep 2; shot 05c-customizations; dumpui custom
 for i in 1 2 3 4 5 6; do idb ui swipe --udid "$UDID" 200 700 200 250 >/dev/null 2>&1; sleep 1; done; shot 05d-scrolled; dumpui scrolled
