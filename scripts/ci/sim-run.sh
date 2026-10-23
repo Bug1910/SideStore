@@ -69,7 +69,7 @@ chk() { p=$(alive); echo "[$(date +%T)] $1 pid=$p" | tee -a "$OUT/notes.txt"; if
 note() { echo "[$(date +%T)] $*" | tee -a "$OUT/notes.txt"; }
 dumplogs() { # $1 = label
   C=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null)
-  for f in "$C"/Documents/ConsoleLogs/*; do [ -f "$f" ] && { echo "== $1 $(basename "$f")"; grep -a -i "AutoRefresh\|LaunchViewController\|MyApps\|crash\|fatal" "$f" | grep -v "^objc" | tail -40; } ; done >> "$OUT/app-log-$1.txt" 2>&1
+  for f in "$C"/Documents/ConsoleLogs/*; do [ -f "$f" ] && { echo "== $1 $(basename "$f")"; cut -c1-300 "$f" | grep -a -v "^objc\[" | tail -150; } ; done >> "$OUT/app-log-$1.txt" 2>&1
   echo "AutoRefresh lines in latest log: $(grep -a -c 'AutoRefresh' "$(applog)" 2>/dev/null)" | tee -a "$OUT/notes.txt"
   ls "$HOME/Library/Logs/DiagnosticReports" 2>/dev/null | grep -i sidestore >> "$OUT/crash-$1.txt"
   true
@@ -130,6 +130,12 @@ idb ui button --udid "$UDID" HOME >/dev/null 2>&1 || xcrun simctl launch "$UDID"
 sleep 3; shot 04a-after-home; note "T4 before-url pid=$(alive)"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 4; shot 04b-warm-url-8s; sleep 10; shot 04c-warm-url-16s; chk "T4"; dumpui t4; dumplogs t4
 
+# T4c: Refresh All BUTTON in My Apps (no URL) - compare with the URL path
+step t4c-button-refresh
+xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; dumpui t4c-launch; shot 04d-launch
+tapl "My Apps"; sleep 3; shot 04e-myapps; dumpui t4c-myapps
+tapl "Refresh All"; sleep 8; shot 04f-after-refresh-all-button; dumpui t4c-after; chk "T4c"; dumplogs t4c
+
 # T5: settings page
 step t5-settings
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
@@ -151,5 +157,7 @@ du -sh "$OUT"
 TOTAL_AR=$(cat "$OUT"/app-log-t*.txt 2>/dev/null | grep -a -c '\[AutoRefresh\]')
 echo "total [AutoRefresh] log lines: $TOTAL_AR" | tee -a "$OUT/notes.txt"
 [ "$TOTAL_AR" -gt 0 ] || fail "no [AutoRefresh] line in any app log"
+ls "$OUT"/crash-*.ips >/dev/null 2>&1 && fail "crash report(s) present: $(ls "$OUT" | grep -c 'crash-.*ips') .ips file(s)"
+grep -a -l "UNCAUGHT" "$OUT"/app-log-t*.txt >/dev/null 2>&1 && fail "app log has UNCAUGHT crash marker"
 echo "FAILS=$FAILS" | tee -a "$OUT/notes.txt"
 [ "$FAILS" = 0 ] || exit 1
