@@ -1,0 +1,10 @@
+2026-10-23T07:52:47.362 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='SideJITServer', domain=nil (timeout: 2.0s)
+2026-10-23T07:52:47.388 [D]: Failed to start DatabaseManager. Error: missingAppGroup(reason: "Unable to access the shared App Group container. Refusing to create or use a private sandbox fallback database.")
+2026-10-23T07:52:47.405 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T07:52:47.405 [D]: [AppDelegate] Current image cache size: Zero kB
+2026-10-23T07:52:47.406 [D]: [UserDefaults] Key 'isDebugModeEnabled' -> true
+2026-10-23T07:52:47.406 [D]: [UserDefaults] Key 'isDebugModeEnabled' -> 1
+2026-10-23T07:52:47.465 [D]: [SceneDelegate] scene(willConnectTo:) invoked
+2026-10-23T07:52:47.473 [D]: [LaunchViewController] viewDidLoad()
+2026-10-23 07:52:47.543 SideStore[28686:82083] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23T07:52:48.119 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
