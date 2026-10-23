@@ -202,13 +202,12 @@ enum AutoRefresh
             {
                 switch appResult
                 {
-                case .success(let installedApp):
-                    // installedApp belongs to the refresh group's background context:
-                    // only take its objectID (thread-safe) and read the saved value on the main-queue viewContext.
-                    let viewContext = DatabaseManager.shared.viewContext
-                    if let app = try? viewContext.existingObject(with: installedApp.objectID) as? InstalledApp
+                case .success:
+                    // Don't touch the returned InstalledApp at all (it lives in the refresh group's
+                    // background context, possibly with a temporary objectID). Re-fetch by bundle ID on viewContext.
+                    let predicate = NSPredicate(format: "%K == %@", #keyPath(InstalledApp.bundleIdentifier), bundleID)
+                    if let app = InstalledApp.first(satisfying: predicate, in: DatabaseManager.shared.viewContext)
                     {
-                        viewContext.refresh(app, mergeChanges: true)
                         expirationDates.append(app.expirationDate)
                     }
 
