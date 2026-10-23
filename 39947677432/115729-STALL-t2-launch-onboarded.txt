@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't2-launch-onboarded'
+pid: 30948
+---- tail
+2026-10-23T11:57:33.791 [D]: [AppManager] refresh() called for apps: ["com.SideStore.SideStore"]
+2026-10-23T11:57:34.154 [D]: [minimuxer] minimuxer not ready: pairing file not loaded
+2026-10-23T11:57:34.164 [D]: Operation Summary:
+===================================================
+|                OPERATION FAILED                 |
+===================================================
+| • Operation: refresh                            |
+| • App ID: com.SideStore.SideStore               |
+| • Status: FAILED                                |
+| • Elapsed: 0.361s                               |
+| • Error: Pairing Required: No valid pairing file|
+|           has been loaded
+
+Without a valid pairi|
+|          ng file, SideStore operations cannot co|
+|          nnect to your device. Please pair your |
+|          device or import a valid pairing file. |
+===================================================
+2026-10-23T11:57:34.180 [D]: [AppManager] setProgress: nil for operation: .refresh, totalUnitCount: 0
+2026-10-23T11:57:34.210 [D]: [UserDefaults] Removed Key 'autoRefreshInFlightSince'
+2026-10-23T11:57:34.210 [D]: [UserDefaults] Key 'autoRefreshInFlightSince' -> nil
+2026-10-23T11:57:34.211 [D]: [UserDefaults] Removed Key 'autoRefreshPreviousSideStoreExpiration'
+2026-10-23T11:57:34.212 [D]: [UserDefaults] Key 'autoRefreshPreviousSideStoreExpiration' -> nil
+2026-10-23T11:57:34.213 [D]: [AutoRefresh] finished: 1 apps, 1 failed, 0 cancelled
+2026-10-23T11:57:34.213 [D]: [AutoRefresh] first failure: com.SideStore.SideStore SideStore.OperationError 22
+2026-10-23T11:57:34.213 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T11:57:34.217 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T11:57:34.218 [D]: [AutoRefresh] consecutive failures: 1
+2026-10-23T11:57:34.587 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T11:57:34.587 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T11:57:34.589 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T11:57:34.589 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
+2026-10-23T11:57:39.609 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T11:57:39.609 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T11:57:39.610 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T11:57:39.610 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T11:57:41.621 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T11:57:41.623 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T11:57:41.623 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T11:57:41.623 [D]: [AppDelegate] Boot sequence completed.
