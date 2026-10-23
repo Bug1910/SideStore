@@ -2,8 +2,11 @@ name: Simulator walkthrough (URL scheme / auto refresh)
 
 on:
   push:
-    branches: [feat-url, 'sim-*']
+    branches: [feat-url, 'sim-*', '!sim-live']
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 concurrency:
   group: sim-${{ github.ref }}
@@ -41,6 +44,8 @@ jobs:
             2>&1 | tee build/logs/sim-build.log | xcbeautify --renderer github-actions
 
       - name: Walkthrough
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/ci/sim-run.sh
 
       - uses: actions/upload-artifact@v4
