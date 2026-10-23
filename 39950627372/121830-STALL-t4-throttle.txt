@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't4-throttle'
+pid: 33435
+---- tail
+  "stream.yattee",
+  "com.litritt.litsource",
+  "thatstel.la.altsource",
+  "com.deliacheminot.mona"
+]
+2026-10-23T12:18:36.340 [D]: [UpdateKnownSourcesOperation] execute() took: 0.517s
+2026-10-23T12:18:36.725 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T12:18:36.756 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T12:18:36.757 [D]: [SideJITManager] resolveServerURL: Bonjour discovery did not return any service within timeout
+2026-10-23T12:18:36.757 [D]: [SideJITManager] resolveServerURL: trying fallback address 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T12:18:36.757 [D]: [SideJITManager] resolveAddressIfNeeded: parsing host='sidejitserver._http._tcp.local', port=8080
+2026-10-23T12:18:36.757 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD descriptor -> searching type='_http._tcp', prefix='sidejitserver'
+2026-10-23T12:18:36.757 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='sidejitserver', domain=nil (timeout: 2.0s)
+2026-10-23T12:18:36.764 [D]: [TabBarController] viewDidAppear() — TabBarController is now visible
+2026-10-23T12:18:36.765 [D]: Fetch 'AltStore' Predicate: bundleIdentifier == "com.SideStore.SideStore"
+2026-10-23T12:18:36.766 [D]: [AutoRefresh] skip: earliest expiration in 167h
+2026-10-23T12:18:36.851 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T12:18:37.074 [D]: [LaunchViewController] Transition complete - exiting LaunchViewController, handing off to TabBarController
+2026-10-23T12:18:37.121 [D]: [FetchSourceOperation] execute() took: 1.274s
+2026-10-23T12:18:37.139 [D]: [SideStore] Resolving AppVersion context-level conflict. Most likely due to migrating from pre-AppVersion model version. <AppVersion: 0x600002152e40> (entity: AppVersion; id: 0x60000030d360 <x-coredata:///AppVersion/t43ED8C7E-4F37-4463-AB6C-3B7329E529BF22>; data: {
+    app = "0x6000002f9660 <x-coredata:///StoreApp/t43ED8C7E-4F37-4463-AB6C-3B7329E529BF3>";
+    appBundleID = "com.SideStore.SideStore";
+    buildVersion = "";
+    channel = unknown;
+    date = "2026-09-11 21:25:58 +0000";
+    downloadURL = "https://github.com/SideStore/SideStore/releases/download/alpha/SideStore.ipa";
+    latestVersionApp = "0x6000002f9660 <x-coredata:///StoreApp/t43ED8C7E-4F37-4463-AB6C-3B7329E529BF3>";
+    localizedDescription = "#### What's Changed:\n- **fixes for 503 during sign-in**: There were some changes from apple server side which broke 0.6.4 and prior versions and prevent them from signing into sidestore. This temporar";
+    maxOSVersion = nil;
+    minOSVersion = nil;
+    releaseTrack = "0x60000030d120 <x-coredata:///ReleaseTrack/t43ED8C7E-4F37-4463-AB6C-3B7329E529BF21>";
+    sha256 = e334f86e6ceeab2e0d886c07611246533f474bb18838cf13ebc09ed1f0d622b5;
+    size = 27770821;
+    sourceID = "sidestore.io/apps-v2.json";
+    version = "0.7.0-20260911.328+6032424a";
+})
+2026-10-23T12:18:38.799 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T12:18:38.800 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T12:18:38.802 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T12:18:38.802 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
