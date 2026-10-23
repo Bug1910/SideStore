@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't3-cold-url'
+pid: 27640
+---- tail
+|                OPERATION FAILED                 |
+===================================================
+| • Operation: refresh                            |
+| • App ID: com.SideStore.SideStore               |
+| • Status: FAILED                                |
+| • Elapsed: 0.201s                               |
+| • Error: Pairing Required: No valid pairing file|
+|           has been loaded
+
+Without a valid pairi|
+|          ng file, SideStore operations cannot co|
+|          nnect to your device. Please pair your |
+|          device or import a valid pairing file. |
+===================================================
+2026-10-23T12:38:30.786 [D]: [AppManager] setProgress: nil for operation: .refresh, totalUnitCount: 0
+2026-10-23T12:38:30.811 [D]: [UserDefaults] Removed Key 'autoRefreshInFlightSince'
+2026-10-23T12:38:30.812 [D]: [UserDefaults] Key 'autoRefreshInFlightSince' -> nil
+2026-10-23T12:38:30.813 [D]: [UserDefaults] Removed Key 'autoRefreshPreviousSideStoreExpiration'
+2026-10-23T12:38:30.813 [D]: [UserDefaults] Key 'autoRefreshPreviousSideStoreExpiration' -> nil
+2026-10-23T12:38:30.815 [D]: [AutoRefresh] finished: 1 apps, 1 failed, 0 cancelled
+2026-10-23T12:38:30.815 [D]: [AutoRefresh] first failure: com.SideStore.SideStore SideStore.OperationError 22
+2026-10-23T12:38:30.815 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T12:38:30.819 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T12:38:30.819 [D]: [AutoRefresh] consecutive failures: 1
+2026-10-23T12:38:34.547 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T12:38:34.547 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T12:38:34.547 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T12:38:34.548 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T12:38:36.554 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T12:38:36.555 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T12:38:36.555 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T12:38:36.555 [D]: [AppDelegate] Boot sequence completed.
+2026-10-23T12:39:10.769 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T12:39:10.770 [D]: [AutoRefresh] skip: last attempt was 42s ago (min 1800s)
+2026-10-23T12:39:10.803 [D]: [AppDelegate] Checking for SideBackup log in group 'group.com.SideStore.SideStore.XYZ0123456' at: /Users/runner/Library/Developer/CoreSimulator/Devices/0183276C-C5F7-4A53-B0AF-C3D9117595F6/data/Containers/Shared/AppGroup/B05506C0-A537-45CC-867F-8B1E929860D2/Logs/SideBack
+2026-10-23T12:39:20.876 [D]: [SceneDelegate] scene(_:openURLContexts:) called with URL: sidestore://refresh-all
+2026-10-23T12:39:20.876 [D]: [URLHandler] handle(_:) called with URL: sidestore://refresh-all
+2026-10-23T12:39:20.876 [D]: [URLHandler] Matched host: refresh-all, path: 
+2026-10-23T12:39:20.876 [D]: [AutoRefresh] request(source: url)
+2026-10-23T12:39:20.878 [D]: [AutoRefresh] skip url request: last attempt was 52s ago (min 600s)
