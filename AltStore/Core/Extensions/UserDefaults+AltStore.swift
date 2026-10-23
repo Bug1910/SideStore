@@ -491,6 +491,12 @@ public extension UserDefaults
         set { self.set(newValue, forKey: #function) }
     }
 
+    // Refresh All automatically when SideStore is opened and something expires within 2 days.
+    @objc var isAutoRefreshOnOpenEnabled: Bool {
+        get { self.bool(forKey: #function) }
+        set { self.set(newValue, forKey: #function) }
+    }
+
     @objc var useLocalVPN: Bool {
         get { self.bool(forKey: #function) }
         set { self.set(newValue, forKey: #function) }
@@ -583,6 +589,7 @@ public extension UserDefaults
             #keyPath(UserDefaults.isRotateLogsOnStartupEnabled): true,
             #keyPath(UserDefaults.recreateDatabaseOnNextStart): false,
             #keyPath(UserDefaults.isCellularRefreshEnabled): false,
+            #keyPath(UserDefaults.isAutoRefreshOnOpenEnabled): true,
             #keyPath(UserDefaults.turnOffDataShortcutName): "TurnOffData",
             #keyPath(UserDefaults.turnOnDataShortcutName): "TurnOnData",
             #keyPath(UserDefaults.isPairingReset): true,

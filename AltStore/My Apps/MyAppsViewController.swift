@@ -78,6 +78,7 @@ class MyAppsViewController: UICollectionViewController
         NotificationCenter.default.addObserver(self, selector: #selector(MyAppsViewController.didFetchSource(_:)), name: AppManager.didFetchSourceNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MyAppsViewController.importApp(_:)), name: AppDelegate.importAppDeepLinkNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MyAppsViewController.appIDsViewControllerDidDismiss(_:)), name: AppIDsViewController.didDismissNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MyAppsViewController.autoRefreshRequested(_:)), name: AutoRefresh.requestNotification, object: nil)
     }
     
     deinit {
@@ -195,6 +196,11 @@ class MyAppsViewController: UICollectionViewController
         if let pendingURL = self.pendingImportURL {
             self.pendingImportURL = nil
             self.presentImportDialog(for: pendingURL)
+        }
+
+        if AutoRefresh.pendingSource != nil
+        {
+            self.autoRefreshRequested(nil)
         }
     }
     
@@ -848,6 +854,12 @@ private extension MyAppsViewController
     
     @IBAction func refreshAllApps(_ sender: UIBarButtonItem)
     {
+        self.performRefreshAllApps(completion: nil)
+    }
+
+    // Body of the "Refresh All" button. Also used by sidestore://refresh-all and auto refresh on open (AutoRefresh.swift).
+    func performRefreshAllApps(completion: ((Result<[String: Result<InstalledApp, Error>], Error>) -> Void)?)
+    {
         Task { @MainActor in
             let installedApps = InstalledApp.fetchAppsForRefreshingAll(in: DatabaseManager.shared.viewContext)
             guard !installedApps.isEmpty else {
@@ -867,9 +879,10 @@ private extension MyAppsViewController
                 
                 let toastView = ToastView(error: error)
                 toastView.show(in: self)
+                completion?(.failure(error))
                 return
             }
-            
+
             self.isRefreshingAllApps = true
             if let activeAppsHeader = self.collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: Section.activeApps.rawValue)) as? InstalledAppsCollectionHeaderView {
                 activeAppsHeader.button.isIndicatingActivity = true
@@ -885,6 +898,7 @@ private extension MyAppsViewController
                         activeAppsHeader.button.accessibilityLabel = nil
                     }
                     self.reconfigureVisibleCells()
+                    completion?(.success(result))
                 }
             }
             
@@ -1789,6 +1803,26 @@ private extension MyAppsViewController
         }
         
         self.presentImportDialog(for: url)
+    }
+
+    @objc func autoRefreshRequested(_ notification: Notification?)
+    {
+        // Make sure left UIBarButtonItem has been set.
+        self.loadViewIfNeeded()
+
+        // Not on screen yet (cold launch / other tab): keep it pending for viewDidAppear.
+        guard self.view.window != nil && self._viewDidAppear && DatabaseManager.shared.isStarted else { return }
+        guard let source = AutoRefresh.consumePendingSource() else { return }
+
+        guard !self.isRefreshingAllApps else {
+            debugLog("[AutoRefresh] skip: Refresh All already running")
+            return
+        }
+
+        AutoRefresh.markStarted(source)
+        self.performRefreshAllApps { result in
+            AutoRefresh.handleCompletion(result)
+        }
     }
 
     private func presentImportDialog(for url: URL)

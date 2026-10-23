@@ -35,6 +35,7 @@ final class TabBarController: UITabBarController
         NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.importApp(_:)), name: AppDelegate.importAppDeepLinkNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.presentSources(_:)), name: AppDelegate.addSourceDeepLinkNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.openErrorLog(_:)), name: ToastView.openErrorLogNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TabBarController.showMyAppsForAutoRefresh(_:)), name: AutoRefresh.requestNotification, object: nil)
     }
     
     override func viewDidLoad() 
@@ -53,9 +54,23 @@ final class TabBarController: UITabBarController
     {
         super.viewDidAppear(animated)
         debugLog("[TabBarController] viewDidAppear() — TabBarController is now visible")
-        
+
+        let isFirstAppearance = !_viewDidAppear
         _viewDidAppear = true
-        
+
+        if isFirstAppearance
+        {
+            // Database is started by now (LaunchViewController), so cold-launch checks can run here.
+            AutoRefresh.reportInterruptedRunIfNeeded()
+            AutoRefresh.requestIfExpiringSoon()
+
+            if AutoRefresh.pendingSource != nil
+            {
+                // sidestore://refresh-all (or auto refresh) arrived before this controller existed.
+                self.showMyAppsForAutoRefresh(nil)
+            }
+        }
+
         if let (identifier, sender) = self.initialSegue
         {
             self.initialSegue = nil
@@ -106,5 +121,18 @@ private extension TabBarController
     @objc func openErrorLog(_ notification: Notification)
     {
         self.selectedIndex = Tab.settings.rawValue
+    }
+
+    @objc func showMyAppsForAutoRefresh(_ notification: Notification?)
+    {
+        guard _viewDidAppear else { return } // viewDidAppear handles it later.
+
+        self.selectedIndex = Tab.myApps.rawValue
+
+        // My Apps only refreshes while its root list is on screen.
+        if let navigationController = self.selectedViewController as? UINavigationController
+        {
+            navigationController.popToRootViewController(animated: false)
+        }
     }
 }

@@ -56,6 +56,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate
             Task {
                 await WidgetDataManager.publishCurrentInstalledAppsIfNeeded(in: DatabaseManager.shared.viewContext)
             }
+
+            // Cold launch is handled by TabBarController.viewDidAppear (database isn't started yet here).
+            AutoRefresh.requestIfExpiringSoon()
         }
     }
 

@@ -90,7 +90,12 @@ class URLHandler {
                 ExportCertificateDialog.present(callbackTemplate: callbackTemplate)
             }
             return true
-            
+
+        case "refresh-all":
+            // Same path as the "Refresh All" button in My Apps (queued until My Apps is on screen).
+            AutoRefresh.request(.url)
+            return true
+
         default:
             return false
         }

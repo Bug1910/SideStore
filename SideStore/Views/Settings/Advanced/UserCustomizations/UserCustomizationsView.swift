@@ -51,6 +51,7 @@ struct UserCustomizationsView: View {
     @State private var isFileSizeVerificationEnabled: Bool = UserDefaults.standard.isFileSizeVerificationEnabled
     @State private var permissionCheckingDisabled: Bool = UserDefaults.standard.permissionCheckingDisabled
     @State private var isCellularRefreshEnabled: Bool = UserDefaults.standard.isCellularRefreshEnabled
+    @State private var isAutoRefreshOnOpenEnabled: Bool = UserDefaults.standard.isAutoRefreshOnOpenEnabled
     @State private var turnOnDataShortcutName: String = UserDefaults.standard.turnOnDataShortcutName
     @State private var turnOffDataShortcutName: String = UserDefaults.standard.turnOffDataShortcutName
     @State private var turnOnBaseDelayText: String = {
@@ -603,6 +604,20 @@ struct UserCustomizationsView: View {
                 .padding(.horizontal, 16)
 
             VStack(spacing: 0) {
+                toggleRow(
+                    title: "Auto Refresh on Open",
+                    subtitle: "Run Refresh All when SideStore opens and an app expires within 2 days (at most every 30 min)",
+                    isOn: Binding(
+                        get: { isAutoRefreshOnOpenEnabled },
+                        set: { newValue in
+                            isAutoRefreshOnOpenEnabled = newValue
+                            UserDefaults.standard.isAutoRefreshOnOpenEnabled = newValue
+                        }
+                    )
+                )
+
+                divider
+
                 toggleRow(
                     title: "Cellular Refresh",
                     subtitle: "Automatically toggle cellular data via Shortcuts during refresh",
