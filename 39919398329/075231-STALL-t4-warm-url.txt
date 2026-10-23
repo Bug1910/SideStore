@@ -1,0 +1,123 @@
+STALL: screen unchanged >10 s during step 't4-warm-url'
+pid: NONE
+2026-10-23T07:51:20.118 [D]: [UserDefaults] Key 'isDebugModeEnabled' -> 1
+2026-10-23T07:51:20.138 [D]: Failed to start DatabaseManager. Error: missingAppGroup(reason: "Unable to access the shared App Group container. Refusing to create or use a private sandbox fallback database.")
+2026-10-23T07:51:20.154 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T07:51:20.155 [D]: [SceneDelegate] scene(willConnectTo:) invoked
+2026-10-23T07:51:20.156 [D]: [URLHandler] handle(_:) called with URL: sidestore://refresh-all
+2026-10-23T07:51:20.156 [D]: [URLHandler] Matched host: refresh-all, path: 
+2026-10-23T07:51:20.156 [D]: [AutoRefresh] request(source: url)
+2026-10-23T07:51:20.160 [D]: [LaunchViewController] viewDidLoad()
+2026-10-23 07:51:20.184 SideStore[24195:70717] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23T07:51:20.486 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+--
+CoreData: warning:  Background context created for persistent container SideStore with no stores loaded
+*** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.'
+*** First throw call stack:
+(
+	0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+	1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+	2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+	3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+	4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+	5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+	6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+	7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+	8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+	9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+---- tail
+7   libobjc.A.dylib                     0x000000018003f19c _ZL15_objc_terminatev + 124
+8   libc++abi.dylib                     0x00000001802cc790 _ZSt11__terminatePFvvE + 12
+9   libc++abi.dylib                     0x00000001802cf8ec __cxa_rethrow + 128
+10  libobjc.A.dylib                     0x00000001800635cc objc_exception_rethrow + 40
+11  CoreData                            0x000000018794d0f8 developerSubmittedBlockToNSManagedObjectContextPerform + 616
+12  libdispatch.dylib                   0x000000018019fe98 _dispatch_client_callout + 12
+13  libdispatch.dylib                   0x000000018018e724 _dispatch_lane_serial_drain + 984
+14  libdispatch.dylib                   0x000000018018f1e8 _dispatch_lane_invoke + 396
+15  libdispatch.dylib                   0x0000000180199ec0 _dispatch_root_queue_drain_deferred_wlh + 288
+16  libdispatch.dylib                   0x0000000180199608 _dispatch_workloop_worker_thread + 692
+17  libsystem_pthread.dylib             0x0000000106baac28 _pthread_wqthread + 288
+18  libsystem_pthread.dylib             0x0000000106ba9a28 start_wqthread + 8
+===================================================
+2026-10-23 07:52:14.228 SideStore[24195:70736] 
+===================================================
+|             UNCAUGHT FATAL SIGNAL               |
+===================================================
+  • Signal: SIGABRT (Abort/Assertion Failure)
+
+Call Stack:
+0   SideStore                           0x00000001037cd278 $s9SideStore11AppDelegateC17setupCrashHandler33_0B31063FE39070D574B522AB1F271C66LLyyFys5Int32VcfU0_ + 1272
+1   SideStore                           0x00000001037cd7b8 $s9SideStore11AppDelegateC17setupCrashHandler33_0B31063FE39070D574B522AB1F271C66LLyyFys5Int32VcfU0_To + 12
+2   libsystem_platform.dylib            0x0000000106b7f540 _sigtramp + 52
+3   libsystem_pthread.dylib             0x0000000106bae338 pthread_kill + 264
+4   libsystem_c.dylib                   0x000000018017a88c abort + 116
+5   libc++abi.dylib                     0x00000001802d07d0 _ZN10__cxxabiv116__shim_type_infoD1Ev + 0
+6   libc++abi.dylib                     0x00000001802bd134 _ZSt14set_unexpectedPFvvE + 0
+7   libobjc.A.dylib                     0x000000018003f19c _ZL15_objc_terminatev + 124
+8   libc++abi.dylib                     0x00000001802cc790 _ZSt11__terminatePFvvE + 12
+9   libc++abi.dylib                     0x00000001802cf8ec __cxa_rethrow + 128
+10  libobjc.A.dylib                     0x00000001800635cc objc_exception_rethrow + 40
+11  CoreData                            0x000000018794d0f8 developerSubmittedBlockToNSManagedObjectContextPerform + 616
+12  libdispatch.dylib                   0x000000018019fe98 _dispatch_client_callout + 12
+13  libdispatch.dylib                   0x000000018018e724 _dispatch_lane_serial_drain + 984
+14  libdispatch.dylib                   0x000000018018f1e8 _dispatch_lane_invoke + 396
+15  libdispatch.dylib                   0x0000000180199ec0 _dispatch_root_queue_drain_deferred_wlh + 288
+16  libdispatch.dylib                   0x0000000180199608 _dispatch_workloop_worker_thread + 692
+17  libsystem_pthread.dylib             0x0000000106baac28 _pthread_wqthread + 288
+18  libsystem_pthread.dylib             0x0000000106ba9a28 start_wqthread + 8
+===================================================

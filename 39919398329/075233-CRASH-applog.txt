@@ -1,0 +1,80 @@
+2026-10-23T07:51:20.118 [D]: [UserDefaults] Key 'isDebugModeEnabled' -> 1
+2026-10-23T07:51:20.138 [D]: Failed to start DatabaseManager. Error: missingAppGroup(reason: "Unable to access the shared App Group container. Refusing to create or use a private sandbox fallback database.")
+2026-10-23T07:51:20.154 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T07:51:20.155 [D]: [SceneDelegate] scene(willConnectTo:) invoked
+2026-10-23T07:51:20.156 [D]: [URLHandler] handle(_:) called with URL: sidestore://refresh-all
+2026-10-23T07:51:20.156 [D]: [URLHandler] Matched host: refresh-all, path: 
+2026-10-23T07:51:20.156 [D]: [AutoRefresh] request(source: url)
+2026-10-23T07:51:20.160 [D]: [LaunchViewController] viewDidLoad()
+2026-10-23 07:51:20.184 SideStore[24195:70717] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23T07:51:20.486 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+--
+CoreData: warning:  Background context created for persistent container SideStore with no stores loaded
+*** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.'
+*** First throw call stack:
+(
+	0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+	1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+	2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+	3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+	4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+	5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+	6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+	7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+	8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+	9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
+===================================================
+|           UNCAUGHT NSEXCEPTION CRASH            |
+===================================================
+  • Name: NSInternalInconsistencyException
+  • Reason: This NSPersistentStoreCoordinator has no persistent stores (unknown).  It cannot perform a save operation.
+
+Call Stack:
+0   CoreFoundation                      0x00000001804c1818 __exceptionPreprocess + 172
+1   libobjc.A.dylib                     0x0000000180063438 objc_exception_throw + 72
+2   CoreData                            0x000000018798f464 -[NSPersistentStoreCoordinator _coordinator_you_never_successfully_opened_the_database_corrupted:] + 0
+3   CoreData                            0x000000018798f688 -[NSPersistentStoreCoordinator _introspectLastErrorAndThrow] + 240
+4   CoreData                            0x0000000187992594 __65-[NSPersistentStoreCoordinator executeRequest:withContext:error:]_block_invoke.367 + 8532
+5   CoreData                            0x0000000187985fa8 -[NSPersistentStoreCoordinator _routeHeavyweightBlock:] + 220
+6   CoreData                            0x000000018798fb38 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1076
+7   CoreData                            0x000000018798fb58 -[NSPersistentStoreCoordinator executeRequest:withContext:error:] + 1108
+8   CoreData                            0x0000000187943898 -[NSManagedObjectContext save:] + 1048
+9   SideStore                           0x0000000102a457a0 $s9SideStore15DatabaseManagerC17purgeLoggedErrors6beforey10Foundation4DateVSg_tYaKFySo22NSManagedObjectContextCKcfU_ + 632
+--
