@@ -66,7 +66,7 @@ collect_crash() { # copies new .ips crash reports + exception lines from simulat
   { echo "== log show (SideStore, last 3m): exception lines"; xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate "process == \"SideStore\"" 2>&1 | grep -a -i -E "Terminating app|uncaught exception|Last Exception|SIGABRT" | cut -c1-600 | head -40; } > "$OUT/crash-log-$ts.txt"; if [ "$(wc -l < "$OUT/crash-log-$ts.txt")" -gt 1 ]; then cp "$OUT/crash-log-$ts.txt" "$Q/$ts-CRASH-log.txt"; else rm -f "$OUT/crash-log-$ts.txt"; fi
 }
 fail() { echo "FAIL: $*" | tee -a "$OUT/notes.txt"; FAILS=$((FAILS+1)); }
-tap_open() { for n in 1 2 3; do tapl Open; sleep 2; if ! idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in"; then return 0; fi; done; fail "open-url dialog still present after 3 taps"; }
+tap_open() { for n in 1 2 3; do tapo Open; sleep 2; if ! idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in"; then return 0; fi; done; fail "open-url dialog still present after 3 taps"; }
 chk() { p=$(alive); echo "[$(date +%T)] $1 pid=$p" | tee -a "$OUT/notes.txt"; if [ "$p" = NONE ]; then fail "$1 app not running (pid=NONE)"; collect_crash; fi; true; }
 note() { echo "[$(date +%T)] $*" | tee -a "$OUT/notes.txt"; }
 dumplogs() { # $1 = label
