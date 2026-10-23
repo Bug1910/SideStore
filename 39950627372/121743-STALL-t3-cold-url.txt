@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't3-cold-url'
+pid: 29211
+---- tail
+===================================================
+|                OPERATION FAILED                 |
+===================================================
+| • Operation: refresh                            |
+| • App ID: com.SideStore.SideStore               |
+| • Status: FAILED                                |
+| • Elapsed: 0.220s                               |
+| • Error: Pairing Required: No valid pairing file|
+|           has been loaded
+
+Without a valid pairi|
+|          ng file, SideStore operations cannot co|
+|          nnect to your device. Please pair your |
+|          device or import a valid pairing file. |
+===================================================
+2026-10-23T12:17:15.112 [D]: [AppManager] setProgress: nil for operation: .refresh, totalUnitCount: 0
+2026-10-23T12:17:15.154 [D]: [UserDefaults] Removed Key 'autoRefreshInFlightSince'
+2026-10-23T12:17:15.154 [D]: [UserDefaults] Key 'autoRefreshInFlightSince' -> nil
+2026-10-23T12:17:15.156 [D]: [UserDefaults] Removed Key 'autoRefreshPreviousSideStoreExpiration'
+2026-10-23T12:17:15.156 [D]: [UserDefaults] Key 'autoRefreshPreviousSideStoreExpiration' -> nil
+2026-10-23T12:17:15.156 [D]: [AutoRefresh] finished: 1 apps, 1 failed, 0 cancelled
+2026-10-23T12:17:15.156 [D]: [AutoRefresh] first failure: com.SideStore.SideStore SideStore.OperationError 22
+2026-10-23T12:17:15.157 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T12:17:15.158 [D]: [UserDefaults] Key 'autoRefreshConsecutiveFailures' -> 1
+2026-10-23T12:17:15.158 [D]: [AutoRefresh] consecutive failures: 1
+2026-10-23T12:17:15.816 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T12:17:15.816 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T12:17:15.816 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T12:17:15.817 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
+2026-10-23T12:17:20.828 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T12:17:20.828 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T12:17:20.828 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T12:17:20.829 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T12:17:22.836 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T12:17:22.838 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T12:17:22.838 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T12:17:22.838 [D]: [AppDelegate] Boot sequence completed.
+2026-10-23T12:17:47.697 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T12:17:47.697 [D]: [AutoRefresh] skip: last attempt was 32s ago (min 1800s)
+2026-10-23T12:17:47.735 [D]: [AppDelegate] Checking for SideBackup log in group 'group.com.SideStore.SideStore.XYZ0123456' at: /Users/runner/Library/Developer/CoreSimulator/Devices/2263B19F-42E8-4C8B-8AF1-D79508216C90/data/Containers/Shared/AppGroup/E582F030-B1AA-46A1-AF56-580AB0561FAE/Logs/SideBack
