@@ -163,7 +163,7 @@ xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
 tabi 4; shot 05a-settings; dumpui settings
 scroll_tap() { # scroll the list until the label is on screen, then tap it; fail if never found
   for n in $(seq 1 30); do
-    if python3 scripts/ci/idb_tap.py "$UDID" "$1" --visible >> "$OUT/notes.txt" 2>&1; then note "found+tapped '$1' after $n looks"; return 0; fi
+    if o=$(python3 scripts/ci/idb_tap.py "$UDID" "$1" --visible 2>&1); then echo "$o" >> "$OUT/notes.txt"; note "found+tapped '$1' after $n looks"; return 0; fi
     idb ui swipe --udid "$UDID" 200 600 200 350 --duration 1.2 >/dev/null 2>&1; sleep 1.5
   done
   fail "could not find '$1' after scrolling"; return 1
