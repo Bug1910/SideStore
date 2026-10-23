@@ -1815,7 +1815,9 @@ private extension MyAppsViewController
         guard let source = AutoRefresh.consumePendingSource() else { return }
 
         guard !self.isRefreshingAllApps else {
-            debugLog("[AutoRefresh] skip: Refresh All already running")
+            // No notification for the skipped request; a run started by AutoRefresh still
+            // posts its own result from handleCompletion when it finishes.
+            debugLog("[AutoRefresh] skip request (source: \(source.rawValue)): Refresh All already running")
             return
         }
 
