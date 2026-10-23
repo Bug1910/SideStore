@@ -1,0 +1,58 @@
+name: Simulator walkthrough (URL scheme / auto refresh)
+
+on:
+  push:
+    branches: [feat-url, 'sim-*']
+  workflow_dispatch:
+
+concurrency:
+  group: sim-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sim:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: "26.2"
+
+      - run: brew install xcbeautify
+
+      - name: Build for iOS Simulator
+        run: |
+          mkdir -p build/logs
+          set -o pipefail
+          xcodebuild build \
+            -project AltStore.xcodeproj -scheme SideStore \
+            -sdk iphonesimulator -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/dd \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM=XYZ0123456 ORG_IDENTIFIER=com.SideStore \
+            2>&1 | tee build/logs/sim-build.log | xcbeautify --renderer github-actions
+
+      - name: Walkthrough
+        run: bash scripts/ci/sim-run.sh
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sim-summary-${{ github.run_number }}
+          path: sim-out
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: sim-buildlog-tail-${{ github.run_number }}
+          path: build/logs/sim-build.log
+          retention-days: 7
