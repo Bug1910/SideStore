@@ -53,18 +53,27 @@ alive() {
   p=$(xcrun simctl spawn "$UDID" launchctl list | grep "$BID" | grep -v 'UIKitApplication:.*\.\(AltWidget\|SideBackup\)' | awk '{print $1}' | head -1)
   echo "${p:-NONE}"
 }
+uihash() { idb ui describe-all --udid "$UDID" --json 2>/dev/null | python3 scripts/ci/idb_dump.py | md5 -q; }
+tabi() { # $1 = tab index (0-based of 5), $2 = optional text that must be on screen afterwards; fails the step otherwise
+  before=$(uihash)
+  python3 scripts/ci/idb_tabtap.py "$UDID" "$1" 5 | tee -a "$OUT/notes.txt"; sleep 3
+  after=$(idb ui describe-all --udid "$UDID" --json 2>/dev/null | python3 scripts/ci/idb_dump.py)
+  if [ -n "${2:-}" ]; then echo "$after" | grep -q "$2" && note "tab $1: found '$2'" || fail "tab $1: expected text '$2' not on screen after tap"
+  else [ "$(echo "$after" | md5 -q)" != "$before" ] && note "tab $1: screen changed" || fail "tab $1: screen did not change after tap"; fi
+}
+tapo() { python3 scripts/ci/idb_tap.py "$UDID" "$1" 2>&1 | sed "s/^NOT FOUND/optional-not-present/" | tee -a "$OUT/notes.txt"; }
 tapl() { python3 scripts/ci/idb_tap.py "$UDID" "$1" | tee -a "$OUT/notes.txt"; }
 dumpui() { idb ui describe-all --udid "$UDID" --json 2>&1 | python3 scripts/ci/idb_dump.py > "$OUT/ui-$1.txt" 2>&1; }
 FAILS=0
 CRASH_SEEN=""
 collect_crash() { # copies new .ips crash reports + exception lines from simulator log (artifact + live)
-  { grep -a -i -E -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; } > "$OUT/crash-applog.txt"; cp "$OUT/crash-applog.txt" "$Q/$(hms)-CRASH-applog.txt"
+  { grep -a -i -E -B1 -A8 "NSException|uncaught|reason:|terminating app" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; } > "$OUT/crash-applog.txt"; if [ -s "$OUT/crash-applog.txt" ]; then cp "$OUT/crash-applog.txt" "$Q/$(hms)-CRASH-applog.txt"; else rm -f "$OUT/crash-applog.txt"; fi
   ts=$(hms)
   for r in "$HOME"/Library/Logs/DiagnosticReports/*SideStore*.ips; do [ -f "$r" ] || continue; b=$(basename "$r"); case "$CRASH_SEEN" in *"$b"*) continue;; esac; CRASH_SEEN="$CRASH_SEEN $b"; cp "$r" "$OUT/crash-$b"; cp "$r" "$Q/$ts-CRASH-$b.txt"; done
-  { echo "== log show (SideStore, last 3m): exception lines"; xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate "process == \"SideStore\"" 2>&1 | grep -a -i "Terminating app|uncaught exception|reason:|Last Exception|SIGABRT|CoreData" | cut -c1-600 | head -40; } > "$OUT/crash-log-$ts.txt"; cp "$OUT/crash-log-$ts.txt" "$Q/$ts-CRASH-log.txt"
+  { echo "== log show (SideStore, last 3m): exception lines"; xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate "process == \"SideStore\"" 2>&1 | grep -a -i -E "Terminating app|uncaught exception|Last Exception|SIGABRT" | cut -c1-600 | head -40; } > "$OUT/crash-log-$ts.txt"; if [ "$(wc -l < "$OUT/crash-log-$ts.txt")" -gt 1 ]; then cp "$OUT/crash-log-$ts.txt" "$Q/$ts-CRASH-log.txt"; else rm -f "$OUT/crash-log-$ts.txt"; fi
 }
 fail() { echo "FAIL: $*" | tee -a "$OUT/notes.txt"; FAILS=$((FAILS+1)); }
-tap_open() { for n in 1 2 3; do tapl Open; sleep 2; if ! idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in"; then return 0; fi; done; fail "open-url dialog still present after 3 taps"; }
+tap_open() { for n in 1 2 3; do tapo Open; sleep 2; if ! idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in"; then return 0; fi; done; fail "open-url dialog still present after 3 taps"; }
 chk() { p=$(alive); echo "[$(date +%T)] $1 pid=$p" | tee -a "$OUT/notes.txt"; if [ "$p" = NONE ]; then fail "$1 app not running (pid=NONE)"; collect_crash; fi; true; }
 note() { echo "[$(date +%T)] $*" | tee -a "$OUT/notes.txt"; }
 dumplogs() { # $1 = label
@@ -88,7 +97,7 @@ ticker() {
       if [ "$step" != "$stepseen" ]; then stepseen=$step; flagged=0; lastchange=$now; fi
       if [ "$h" != "$last" ]; then
         last=$h; lastchange=$now; cp "$f" "$Q/.t1.jpg" && mv "$Q/.t1.jpg" "$Q/$(hms)-tick.jpg"
-      elif [ $((now-lastchange)) -gt 10 ] && [ "$flagged" = 0 ] && [ "$step" != idle ]; then
+      elif [ $((now-lastchange)) -gt 10 ] && [ "$flagged" = 0 ] && [ "$step" != idle ] && { [ "$(alive)" = NONE ] || idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in\|Would Like\|Inaccessible"; }; then
         flagged=1; ts=$(hms); collect_crash
         cp "$f" "$Q/.t2.jpg" && mv "$Q/.t2.jpg" "$Q/$ts-STALL-$step.jpg"
         { echo "STALL: screen unchanged >10 s during step '$step'"; echo "pid: $(alive)"; grep -a -i -E -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; echo "---- tail"; tail -n 40 "$(applog)" 2>/dev/null | cut -c1-300; } > "$Q/.t3.txt"; mv "$Q/.t3.txt" "$Q/$ts-STALL-$step.txt"
@@ -103,7 +112,7 @@ TICKER=$!
 
 # T0: first launch, NOT onboarded (default state)
 step t0-first-launch
-xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; tapl Allow; sleep 2; shot 00b-after-allow; chk "T0"; dumplogs t0
+xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; tapo Allow; sleep 2; shot 00b-after-allow; chk "T0"; dumplogs t0
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # T1: cold openurl while NOT onboarded (should not crash)
@@ -125,24 +134,44 @@ step t3-cold-url
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 4; shot 03a-cold-url-8s; sleep 12; shot 03b-cold-url-20s; dumpui t3; chk "T3"; dumplogs t3
 
 # T4: WARM openurl (app running, then sent to background via home)
-step t4-warm-url
+step t4-throttle
 idb ui button --udid "$UDID" HOME >/dev/null 2>&1 || xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
 sleep 3; shot 04a-after-home; note "T4 before-url pid=$(alive)"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 4; shot 04b-warm-url-8s; sleep 10; shot 04c-warm-url-16s; chk "T4"; dumpui t4; dumplogs t4
 
+grep -a -q "min 600s" "$OUT"/app-log-t4.txt 2>/dev/null && note "T4 throttle OK: log shows 'min 600s'" || fail "t4-throttle: no 'min 600s' skip line in log"
+
+# T5: WARM url with the throttle state cleared (test-only: delete throttle keys from simulator UserDefaults)
+step t5-warm-url
+xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2
+# NSArgumentDomain trick: a launch argument overrides the stored value; a non-Date string makes the app see "no previous attempt" (test-only, app code untouched)
+xcrun simctl launch "$UDID" "$BID" -autoRefreshLastAttemptDate none -autoRefreshConsecutiveFailures 0 >/dev/null; sleep 12; tapo Allow
+shot 04g-warm-foreground; note "T5w app in foreground, pid=$(alive); newest log: $(basename "$(applog)")"
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
+[ "$(grep -a -c 'refresh() called' "$(applog)" 2>/dev/null)" -gt 0 ] && note "warm url path (fresh process, throttle cleared): refresh() called OK" || fail "warm url path: no refresh() called in newest log"
+
 # T4c: Refresh All BUTTON in My Apps (no URL) - compare with the URL path
 step t4c-button-refresh
-xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; dumpui t4c-launch; shot 04d-launch
-tapl "My Apps"; sleep 3; shot 04e-myapps; dumpui t4c-myapps
+xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 3; dumpui t4c-launch; shot 04d-launch
+tabi 3 "Refresh All"; shot 04e-myapps; dumpui t4c-myapps
 tapl "Refresh All"; sleep 8; shot 04f-after-refresh-all-button; dumpui t4c-after; chk "T4c"; dumplogs t4c
+[ "$(grep -a -c 'refresh() called' "$(applog)" 2>/dev/null)" -gt 0 ] && note "button path (fresh process): refresh() called OK" || fail "button path: no refresh() called in newest log"
 
 # T5: settings page
-step t5-settings
+step t6-settings
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
-tapl Settings; sleep 3; shot 05a-settings; dumpui settings
-tapl Advanced; sleep 2; shot 05b-advanced; dumpui advanced
-tapl "User Customizations" || tapl Customization; sleep 2; shot 05c-customizations; dumpui custom
-for i in 1 2 3 4 5 6; do idb ui swipe --udid "$UDID" 200 700 200 250 >/dev/null 2>&1; sleep 1; done; shot 05d-scrolled; dumpui scrolled
+tabi 4; shot 05a-settings; dumpui settings
+scroll_tap() { # scroll the list until the label is on screen, then tap it; fail if never found
+  for n in $(seq 1 30); do
+    if o=$(python3 scripts/ci/idb_tap.py "$UDID" "$1" --visible 2>&1); then echo "$o" >> "$OUT/notes.txt"; note "found+tapped '$1' after $n looks"; return 0; fi
+    idb ui swipe --udid "$UDID" 200 600 200 350 --duration 1.2 >/dev/null 2>&1; sleep 1.5
+  done
+  fail "could not find '$1' after scrolling"; return 1
+}
+scroll_tap "User Customizations"; sleep 3; shot 05b-customizations-top; dumpui custom
+if scroll_tap "Auto Refresh on Open"; then shot 05c-auto-refresh-toggle; dumpui toggle; else shot 05c-toggle-missing; fi
+grep -a -q "Auto Refresh on Open" "$OUT/ui-toggle.txt" 2>/dev/null && note "settings: 'Auto Refresh on Open' row present" || fail "settings: 'Auto Refresh on Open' row not on screen"
+shot 05d-after-toggle-tap; dumpui after-toggle
 chk "T5"; dumplogs t5
 
 step idle; collect_crash
@@ -159,5 +188,7 @@ echo "total [AutoRefresh] log lines: $TOTAL_AR" | tee -a "$OUT/notes.txt"
 [ "$TOTAL_AR" -gt 0 ] || fail "no [AutoRefresh] line in any app log"
 ls "$OUT"/crash-*.ips >/dev/null 2>&1 && fail "crash report(s) present: $(ls "$OUT" | grep -c 'crash-.*ips') .ips file(s)"
 grep -a -l "UNCAUGHT" "$OUT"/app-log-t*.txt >/dev/null 2>&1 && fail "app log has UNCAUGHT crash marker"
+grep -a -q "missingAppGroup" "$OUT"/app-log-t*.txt 2>/dev/null && fail "app log has missingAppGroup (database never started)"
+grep -a -q "^NOT FOUND" "$OUT/notes.txt" && fail "some UI element was not found: $(grep -a '^NOT FOUND' "$OUT/notes.txt" | sort -u | tr '\n' ';')"
 echo "FAILS=$FAILS" | tee -a "$OUT/notes.txt"
 [ "$FAILS" = 0 ] || exit 1

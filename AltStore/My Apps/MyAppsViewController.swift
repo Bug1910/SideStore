@@ -1816,8 +1816,12 @@ private extension MyAppsViewController
         self.loadViewIfNeeded()
 
         // Not on screen yet (cold launch / other tab): keep it pending for viewDidAppear.
-        guard self.view.window != nil && self._viewDidAppear && DatabaseManager.shared.isStarted else { return }
+        guard self.view.window != nil && self._viewDidAppear else { return }
         guard let source = AutoRefresh.consumePendingSource() else { return }
+
+        // My Apps is on screen but the database failed to start (e.g. missing App Group):
+        // refreshing would end in a Core Data save on an unloaded store.
+        guard AutoRefresh.isDatabaseReady(for: source) else { return }
 
         switch source
         {
