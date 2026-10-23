@@ -64,8 +64,10 @@ enum AnisetteProvider {
         // [AutoRefresh] Only the single-server case (Auto Rotation off) and only non-interactive callers
         // (handler == nil, i.e. AuthManager.getAuthenticatedSession used by refresh) get the 6s cap + backup.
         // With rotation on, SideSign's own failover already walks the other servers; the interactive
-        // sign-in flow keeps the original behaviour. Needs proper testing on device.
-        if rotationDisabled && handler == nil {
+        // sign-in flow keeps the original behaviour. Also limited to refresh pipelines (task-local flag set by
+        // AutoRefreshRetry.run) and to an already provisioned device: with no adi.pb yet, provisioning must not
+        // be cut off by the timeout nor done against a backup server. Needs proper testing on device.
+        if rotationDisabled && handler == nil && existingBlob != nil && AutoRefreshAnisette.isRefreshContext {
             result = try await AutoRefreshAnisette.fetchGuarded(
                 primary: primaryServer,
                 activeServers: servers,
@@ -179,6 +181,17 @@ enum AutoRefreshAnisette {
         }
     }
 
+    /// Called from AuthManager.signOut (also used by "Reset adi.pb"): drop the cache, the sticky backup and
+    /// the remembered machine ID hash, since the device identity may change.
+    static func resetAll() {
+        resetForRefresh()
+        UserDefaults.standard.removeObject(forKey: primaryMachineIDHashKey)
+    }
+
+    /// True only while running inside AutoRefreshRetry.run for a refresh pipeline. Child tasks and the
+    /// unstructured Task in TaskChainCoalescer inherit it; Task.detached would not (falls back to original path).
+    @TaskLocal static var isRefreshContext = false
+
     private static func cachedData(identifier: UUID) -> (server: String, data: ALTAnisetteData)? {
         withLock {
             guard let entry = cache, entry.identifier == identifier,
@@ -269,14 +282,22 @@ enum AutoRefreshAnisette {
             store(result.data, server: primary, identifier: identifier)
             debugLog("[AutoRefresh] Anisette from \(primary.absoluteString) took \(elapsed(since: started))")
             return result
-        } catch let timeout as AutoRefreshAnisetteTimeoutError {
-            debugLog("[AutoRefresh] Anisette server \(timeout.server) timed out after \(elapsed(since: started)); trying backup once")
+        } catch let primaryError {
+            // Timeout or an immediate failure (connection refused, 5xx, allServersFailed...): try the backup once,
+            // still subject to the machine ID check. If the backup also fails, surface the primary's error so
+            // AutoRefreshRetry classifies it as before.
+            if primaryError is CancellationError { throw primaryError }
+            debugLog("[AutoRefresh] Anisette server \(primary.absoluteString) failed after \(elapsed(since: started)) (\(type(of: primaryError))); trying backup once")
             guard let backup = backupServer(for: primary, activeServers: activeServers) else {
-                throw timeout
+                throw primaryError
             }
-            let result = try await fetchVerifiedBackup(backup, primary: primary, identifier: identifier, fetchBackup: fetchBackup)
-            setStickyBackup(backup)
-            return result
+            do {
+                let result = try await fetchVerifiedBackup(backup, primary: primary, identifier: identifier, fetchBackup: fetchBackup)
+                setStickyBackup(backup)
+                return result
+            } catch {
+                throw primaryError
+            }
         }
     }
 
@@ -398,7 +419,9 @@ enum AutoRefreshRetry {
         var attempt = 0
         while true {
             do {
-                return try await operation()
+                return try await AutoRefreshAnisette.$isRefreshContext.withValue(true) {
+                    try await operation()
+                }
             } catch {
                 guard let info = transient(error), attempt < info.maxRetries else {
                     if attempt > 0 {

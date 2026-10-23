@@ -93,6 +93,7 @@ public final class AuthManager: @unchecked Sendable {
         }
 
         AnisetteDataManager.shared.clearCache()
+        AutoRefreshAnisette.resetAll()   // [AutoRefresh] own 30s cache, sticky backup, machine ID hash
     }
     
     @discardableResult
