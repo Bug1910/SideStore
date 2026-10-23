@@ -1841,8 +1841,19 @@ private extension MyAppsViewController
         }
 
         AutoRefresh.markStarted(source)
-        self.performRefreshAllApps { result in
-            AutoRefresh.handleCompletion(result)
+
+        // Don't start inside the openURL / didBecomeActive callback chain: on a warm open,
+        // SceneDelegate.sceneWillEnterForeground has just kicked off reconcileInstalledApps(),
+        // whose background save merges into viewContext. Mark busy now, start a bit later.
+        self.isRefreshingAllApps = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            guard let self else { return }
+
+            debugLog("[AutoRefresh] running Refresh All (source: \(source.rawValue))")
+            self.performRefreshAllApps { result in
+                AutoRefresh.handleCompletion(result)
+            }
         }
     }
 
