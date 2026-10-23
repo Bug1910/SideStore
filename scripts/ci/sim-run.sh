@@ -58,7 +58,7 @@ dumpui() { idb ui describe-all --udid "$UDID" --json 2>&1 | python3 scripts/ci/i
 FAILS=0
 CRASH_SEEN=""
 collect_crash() { # copies new .ips crash reports + exception lines from simulator log (artifact + live)
-  { grep -a -i -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; } > "$OUT/crash-applog.txt"; cp "$OUT/crash-applog.txt" "$Q/$(hms)-CRASH-applog.txt"
+  { grep -a -i -E -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; } > "$OUT/crash-applog.txt"; cp "$OUT/crash-applog.txt" "$Q/$(hms)-CRASH-applog.txt"
   ts=$(hms)
   for r in "$HOME"/Library/Logs/DiagnosticReports/*SideStore*.ips; do [ -f "$r" ] || continue; b=$(basename "$r"); case "$CRASH_SEEN" in *"$b"*) continue;; esac; CRASH_SEEN="$CRASH_SEEN $b"; cp "$r" "$OUT/crash-$b"; cp "$r" "$Q/$ts-CRASH-$b.txt"; done
   { echo "== log show (SideStore, last 3m): exception lines"; xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate "process == \"SideStore\"" 2>&1 | grep -a -i "Terminating app|uncaught exception|reason:|Last Exception|SIGABRT|CoreData" | cut -c1-600 | head -40; } > "$OUT/crash-log-$ts.txt"; cp "$OUT/crash-log-$ts.txt" "$Q/$ts-CRASH-log.txt"
@@ -91,7 +91,7 @@ ticker() {
       elif [ $((now-lastchange)) -gt 10 ] && [ "$flagged" = 0 ] && [ "$step" != idle ]; then
         flagged=1; ts=$(hms); collect_crash
         cp "$f" "$Q/.t2.jpg" && mv "$Q/.t2.jpg" "$Q/$ts-STALL-$step.jpg"
-        { echo "STALL: screen unchanged >10 s during step '$step'"; echo "pid: $(alive)"; grep -a -i -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; echo "---- tail"; tail -n 40 "$(applog)" 2>/dev/null | cut -c1-300; } > "$Q/.t3.txt"; mv "$Q/.t3.txt" "$Q/$ts-STALL-$step.txt"
+        { echo "STALL: screen unchanged >10 s during step '$step'"; echo "pid: $(alive)"; grep -a -i -E -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; echo "---- tail"; tail -n 40 "$(applog)" 2>/dev/null | cut -c1-300; } > "$Q/.t3.txt"; mv "$Q/.t3.txt" "$Q/$ts-STALL-$step.txt"
       fi
       if [ $((i%6)) = 0 ]; then cp "$f" "$OUT/tick-$(printf %04d $((now-T0))).jpg"; fi
     fi
