@@ -55,6 +55,17 @@ alive() {
 }
 tapl() { python3 scripts/ci/idb_tap.py "$UDID" "$1" | tee -a "$OUT/notes.txt"; }
 dumpui() { idb ui describe-all --udid "$UDID" --json 2>&1 | python3 scripts/ci/idb_dump.py > "$OUT/ui-$1.txt" 2>&1; }
+FAILS=0
+CRASH_SEEN=""
+collect_crash() { # copies new .ips crash reports + exception lines from simulator log (artifact + live)
+  { grep -a -i -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; } > "$OUT/crash-applog.txt"; cp "$OUT/crash-applog.txt" "$Q/$(hms)-CRASH-applog.txt"
+  ts=$(hms)
+  for r in "$HOME"/Library/Logs/DiagnosticReports/*SideStore*.ips; do [ -f "$r" ] || continue; b=$(basename "$r"); case "$CRASH_SEEN" in *"$b"*) continue;; esac; CRASH_SEEN="$CRASH_SEEN $b"; cp "$r" "$OUT/crash-$b"; cp "$r" "$Q/$ts-CRASH-$b.txt"; done
+  { echo "== log show (SideStore, last 3m): exception lines"; xcrun simctl spawn "$UDID" log show --last 3m --style compact --predicate "process == \"SideStore\"" 2>&1 | grep -a -i "Terminating app|uncaught exception|reason:|Last Exception|SIGABRT|CoreData" | cut -c1-600 | head -40; } > "$OUT/crash-log-$ts.txt"; cp "$OUT/crash-log-$ts.txt" "$Q/$ts-CRASH-log.txt"
+}
+fail() { echo "FAIL: $*" | tee -a "$OUT/notes.txt"; FAILS=$((FAILS+1)); }
+tap_open() { for n in 1 2 3; do tapl Open; sleep 2; if ! idb ui describe-all --udid "$UDID" --json 2>/dev/null | grep -q "Open in"; then return 0; fi; done; fail "open-url dialog still present after 3 taps"; }
+chk() { p=$(alive); echo "[$(date +%T)] $1 pid=$p" | tee -a "$OUT/notes.txt"; if [ "$p" = NONE ]; then fail "$1 app not running (pid=NONE)"; collect_crash; fi; true; }
 note() { echo "[$(date +%T)] $*" | tee -a "$OUT/notes.txt"; }
 dumplogs() { # $1 = label
   C=$(xcrun simctl get_app_container "$UDID" "$BID" data 2>/dev/null)
@@ -78,9 +89,9 @@ ticker() {
       if [ "$h" != "$last" ]; then
         last=$h; lastchange=$now; cp "$f" "$Q/.t1.jpg" && mv "$Q/.t1.jpg" "$Q/$(hms)-tick.jpg"
       elif [ $((now-lastchange)) -gt 10 ] && [ "$flagged" = 0 ] && [ "$step" != idle ]; then
-        flagged=1; ts=$(hms)
+        flagged=1; ts=$(hms); collect_crash
         cp "$f" "$Q/.t2.jpg" && mv "$Q/.t2.jpg" "$Q/$ts-STALL-$step.jpg"
-        { echo "STALL: screen unchanged >10 s during step '$step'"; echo "pid: $(alive)"; tail -n 30 "$(applog)" 2>/dev/null | cut -c1-300; } > "$Q/.t3.txt"; mv "$Q/.t3.txt" "$Q/$ts-STALL-$step.txt"
+        { echo "STALL: screen unchanged >10 s during step '$step'"; echo "pid: $(alive)"; grep -a -i -B1 -A8 "exception|reason:|terminating" "$(applog)" 2>/dev/null | cut -c1-400 | head -80; echo "---- tail"; tail -n 40 "$(applog)" 2>/dev/null | cut -c1-300; } > "$Q/.t3.txt"; mv "$Q/.t3.txt" "$Q/$ts-STALL-$step.txt"
       fi
       if [ $((i%6)) = 0 ]; then cp "$f" "$OUT/tick-$(printf %04d $((now-T0))).jpg"; fi
     fi
@@ -92,12 +103,12 @@ TICKER=$!
 
 # T0: first launch, NOT onboarded (default state)
 step t0-first-launch
-xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; tapl Allow; sleep 2; shot 00b-after-allow; note "T0 pid=$(alive)"; dumplogs t0
+xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 12; shot 00-first-launch; tapl Allow; sleep 2; shot 00b-after-allow; chk "T0"; dumplogs t0
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # T1: cold openurl while NOT onboarded (should not crash)
 step t1-cold-url-not-onboarded
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; shot 01a-dialog; tapl Open; sleep 10; shot 01-cold-url-not-onboarded; note "T1 pid=$(alive)"; dumpui t1; dumplogs t1
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; shot 01a-dialog; tap_open; sleep 10; shot 01-cold-url-not-onboarded; chk "T1"; dumpui t1; dumplogs t1
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # mark onboarding complete (same key the app uses)
@@ -106,18 +117,18 @@ xcrun simctl spawn "$UDID" defaults read "$BID" hasCompletedOnboarding | tee -a 
 
 # T2: launch onboarded -> main UI + sceneDidBecomeActive auto-check
 step t2-launch-onboarded
-xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 15; shot 02-launch-onboarded; note "T2 pid=$(alive)"; dumpui t2; dumplogs t2
+xcrun simctl launch "$UDID" "$BID" | tee -a "$OUT/notes.txt"; sleep 15; shot 02-launch-onboarded; chk "T2"; dumpui t2; dumplogs t2
 xcrun simctl terminate "$UDID" "$BID"; sleep 2
 
 # T3: COLD openurl (app not running)
 step t3-cold-url
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tapl Open; sleep 4; shot 03a-cold-url-8s; sleep 12; shot 03b-cold-url-20s; dumpui t3; note "T3 pid=$(alive)"; dumplogs t3
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 4; shot 03a-cold-url-8s; sleep 12; shot 03b-cold-url-20s; dumpui t3; chk "T3"; dumplogs t3
 
 # T4: WARM openurl (app running, then sent to background via home)
 step t4-warm-url
 idb ui button --udid "$UDID" HOME >/dev/null 2>&1 || xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
 sleep 3; shot 04a-after-home; note "T4 before-url pid=$(alive)"
-xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tapl Open; sleep 4; shot 04b-warm-url-8s; sleep 10; shot 04c-warm-url-16s; note "T4 pid=$(alive)"; dumpui t4; dumplogs t4
+xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 4; shot 04b-warm-url-8s; sleep 10; shot 04c-warm-url-16s; chk "T4"; dumpui t4; dumplogs t4
 
 # T5: settings page
 step t5-settings
@@ -126,12 +137,19 @@ tapl Settings; sleep 3; shot 05a-settings; dumpui settings
 tapl Advanced; sleep 2; shot 05b-advanced; dumpui advanced
 tapl "User Customizations" || tapl Customization; sleep 2; shot 05c-customizations; dumpui custom
 for i in 1 2 3 4 5 6; do idb ui swipe --udid "$UDID" 200 700 200 250 >/dev/null 2>&1; sleep 1; done; shot 05d-scrolled; dumpui scrolled
-note "T5 pid=$(alive)"; dumplogs t5
+chk "T5"; dumplogs t5
 
-step idle
+step idle; collect_crash
 rm -f "$OUT/.run"; wait "$TICKER" 2>/dev/null
 push_live
 note "notification permission: tapped Allow in onboarding (simctl privacy has no notifications service)"
 rm -f "$OUT/.step" "$OUT/.stepstart"
 ls -la "$OUT" | tee -a "$OUT/notes.txt"
 du -sh "$OUT"
+
+# hard verdict: never green when the URL never reached the app
+TOTAL_AR=$(cat "$OUT"/app-log-t*.txt 2>/dev/null | grep -a -c '\[AutoRefresh\]')
+echo "total [AutoRefresh] log lines: $TOTAL_AR" | tee -a "$OUT/notes.txt"
+[ "$TOTAL_AR" -gt 0 ] || fail "no [AutoRefresh] line in any app log"
+echo "FAILS=$FAILS" | tee -a "$OUT/notes.txt"
+[ "$FAILS" = 0 ] || exit 1
