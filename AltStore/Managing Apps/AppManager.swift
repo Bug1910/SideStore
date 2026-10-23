@@ -564,6 +564,9 @@ final class AppManager: ObservableObject, @unchecked Sendable
         }
         
         actualGroup.activeTask = Task.detached {
+            // [AutoRefresh] the "stick to verified backup anisette server" state lives only for one refresh
+            AutoRefreshAnisette.resetForRefresh()
+            defer { AutoRefreshAnisette.resetForRefresh() }
             do {
                 try await self.pipelineRunner.perform(installedApps.map { .refresh($0) }, handler: pipelineHandler, group: actualGroup)
             } catch {
