@@ -31,6 +31,7 @@ enum AutoRefresh
 
     private static let lastAttemptDateKey = "autoRefreshLastAttemptDate"
     private static let inFlightSinceKey = "autoRefreshInFlightSince"
+    private static let previousExpirationKey = "autoRefreshPreviousSideStoreExpiration"
     private static let resultNotificationIdentifier = "sidestore-auto-refresh-result"
 
     // Request waiting for My Apps to be on screen (cold launch, other tab selected, etc.).
@@ -88,20 +89,44 @@ enum AutoRefresh
         UserDefaults.standard.set(now, forKey: self.inFlightSinceKey)
         // Any started run (URL or automatic) counts for the 30-minute throttle.
         UserDefaults.standard.set(now, forKey: self.lastAttemptDateKey)
+
+        // Remember SideStore's own expiration, so an interrupted run (SideStore refreshing itself
+        // gets terminated by iOS) can still be judged on next launch.
+        if let altStoreApp = InstalledApp.fetchAltStore(in: DatabaseManager.shared.viewContext)
+        {
+            UserDefaults.standard.set(altStoreApp.expirationDate, forKey: self.previousExpirationKey)
+        }
+        else
+        {
+            UserDefaults.standard.removeObject(forKey: self.previousExpirationKey)
+        }
     }
 
     /// If the previous run never reported back (e.g. SideStore was terminated while refreshing itself),
     /// tell the user the current expiration instead of staying silent.
     static func reportInterruptedRunIfNeeded()
     {
-        guard UserDefaults.standard.object(forKey: self.inFlightSinceKey) != nil else { return }
+        guard let startedAt = UserDefaults.standard.object(forKey: self.inFlightSinceKey) as? Date else { return }
+        let previousExpiration = UserDefaults.standard.object(forKey: self.previousExpirationKey) as? Date
         UserDefaults.standard.removeObject(forKey: self.inFlightSinceKey)
+        UserDefaults.standard.removeObject(forKey: self.previousExpirationKey)
         guard DatabaseManager.shared.isStarted else { return }
+
+        let altStoreApp = InstalledApp.fetchAltStore(in: DatabaseManager.shared.viewContext)
+
+        // SideStore was refreshed after this run started (refreshedDate) or its expiration moved forward.
+        if let altStoreApp,
+           altStoreApp.refreshedDate >= startedAt || (previousExpiration.map { altStoreApp.expirationDate > $0 } ?? false)
+        {
+            debugLog("[AutoRefresh] previous refresh-all was interrupted, but SideStore was refreshed")
+            self.postNotification(title: "SideStore 續簽成功", body: "成功：到期 " + self.format(altStoreApp.expirationDate))
+            return
+        }
 
         debugLog("[AutoRefresh] previous refresh-all did not report a result")
 
         var body = "上次續簽沒有回報結果（SideStore 可能在續簽自己時被系統重開）。"
-        if let altStoreApp = InstalledApp.fetchAltStore(in: DatabaseManager.shared.viewContext)
+        if let altStoreApp
         {
             body += "SideStore 目前到期：" + self.format(altStoreApp.expirationDate)
         }
@@ -111,13 +136,15 @@ enum AutoRefresh
     static func handleCompletion(_ result: Result<[String: Result<InstalledApp, Error>], Error>)
     {
         UserDefaults.standard.removeObject(forKey: self.inFlightSinceKey)
+        UserDefaults.standard.removeObject(forKey: self.previousExpirationKey)
 
         switch result
         {
         case .failure(let error):
             let nsError = error as NSError
             debugLog("[AutoRefresh] failed before refreshing: \(nsError.domain) \(nsError.code)")
-            self.postNotification(title: "SideStore 續簽失敗", body: "失敗：" + nsError.localizedDescription)
+            // Only domain + code: notification text is visible on the lock screen.
+            self.postNotification(title: "SideStore 續簽失敗", body: "失敗：" + self.errorCode(nsError))
 
         case .success(let results):
             var expirationDates = [Date]()
@@ -154,7 +181,7 @@ enum AutoRefresh
                 debugLog("[AutoRefresh] first failure: \(failure.0) \(nsError.domain) \(nsError.code)")
 
                 let title = failures.count == 1 ? "SideStore 續簽失敗" : "SideStore 續簽失敗（\(failures.count) 個 App）"
-                self.postNotification(title: title, body: "失敗：" + nsError.localizedDescription)
+                self.postNotification(title: title, body: "失敗：" + self.errorCode(nsError))
             }
             else if results.count > cancelledCount
             {
@@ -184,6 +211,11 @@ private extension AutoRefresh
         formatter.dateStyle = .short
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+
+    static func errorCode(_ error: NSError) -> String
+    {
+        return "\(error.domain) \(error.code)"
     }
 
     static func postNotification(title: String, body: String)
