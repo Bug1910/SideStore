@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't1-cold-url-not-onboarded'
+pid: NONE
+---- tail
+2026-10-23 10:41:25.622 SideStore[21004:62752] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T10:41:25.920 [D]: [FetchSourceOperation] execute() took: 1.824s
+2026-10-23T10:41:25.934 [D]: [SideStore] Resolving AppVersion context-level conflict. Most likely due to migrating from pre-AppVersion model version. <AppVersion: 0x10cff8eb0> (entity: AppVersion; id: 0x10e9e7580 <x-coredata:///AppVersion/t28497719-652C-4975-AB61-233BC9BCA3DC27>; data: {
+    app = "0x10e9e6f40 <x-coredata:///StoreApp/t28497719-652C-4975-AB61-233BC9BCA3DC8>";
+    appBundleID = "com.SideStore.SideStore";
+    buildVersion = "";
+    channel = stable;
+    date = "2026-09-11 21:25:58 +0000";
+    downloadURL = "https://github.com/SideStore/SideStore/releases/download/alpha/SideStore.ipa";
+    latestVersionApp = "0x10e9e6f40 <x-coredata:///StoreApp/t28497719-652C-4975-AB61-233BC9BCA3DC8>";
+    localizedDescription = "#### What's Changed:\n- **fixes for 503 during sign-in**: There were some changes from apple server side which broke 0.6.4 and prior versions and prevent them from signing into sidestore. This temporar";
+    maxOSVersion = nil;
+    minOSVersion = nil;
+    releaseTrack = "0x10e9e7520 <x-coredata:///ReleaseTrack/t28497719-652C-4975-AB61-233BC9BCA3DC26>";
+    sha256 = e334f86e6ceeab2e0d886c07611246533f474bb18838cf13ebc09ed1f0d622b5;
+    size = 27770821;
+    sourceID = "sidestore.io/apps-v2.json";
+    version = "0.7.0-20260911.328+6032424a";
+})
+2026-10-23T10:41:26.631 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T10:41:26.632 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T10:41:26.632 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T10:41:26.632 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
+2026-10-23T10:41:31.663 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T10:41:31.663 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T10:41:31.663 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T10:41:31.664 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T10:41:33.712 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T10:41:33.712 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T10:41:33.712 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T10:41:33.712 [D]: [AppDelegate] Boot sequence completed.
+objc[21004]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23E254a/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.4.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x1187dc398) 
+2026-10-23T10:42:14.463 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T10:42:14.678 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 202ms)
+2026-10-23 10:42:14.680 SideStore[21004:62752] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T10:42:14.694 [D]: [AppDelegate] Checking for SideBackup log in group 'group.com.SideStore.SideStore.XYZ0123456' at: /Users/runner/Library/Developer/CoreSimulator/Devices/0183276C-C5F7-4A53-B0AF-C3D9117595F6/data/Containers/Shared/AppGroup/39327214-253E-4A85-8FFE-2385830B42D7/Logs/SideBack
+2026-10-23T10:42:15.926 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 200ms)
+2026-10-23 10:42:15.927 SideStore[21004:62752] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T10:42:16.985 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 201ms)
+2026-10-23 10:42:16.986 SideStore[21004:62752] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
