@@ -144,7 +144,7 @@ grep -a -q "min 600s" "$OUT"/app-log-t4.txt 2>/dev/null && note "T4 throttle OK:
 # T5: WARM url with the throttle state cleared (test-only: delete throttle keys from simulator UserDefaults)
 step t5-warm-url
 xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2
-CP=$(xcrun simctl get_app_container "$UDID" "$BID" data)/Library/Preferences/$BID.plist; ls -la "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshLastAttemptDate "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshConsecutiveFailures "$CP" >> "$OUT/notes.txt" 2>&1
+CP=$(xcrun simctl get_app_container "$UDID" "$BID" data)/Library/Preferences/$BID.plist; ls -la "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshLastAttemptDate "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshConsecutiveFailures "$CP" >> "$OUT/notes.txt" 2>&1; plutil -p "$CP" 2>&1 | grep -a -i "autoRefresh" >> "$OUT/notes.txt"; xcrun simctl spawn "$UDID" killall cfprefsd >> "$OUT/notes.txt" 2>&1; sleep 2; echo "after plutil+cfprefsd restart: $(plutil -p "$CP" 2>&1 | grep -a -c autoRefresh) autoRefresh keys left" | tee -a "$OUT/notes.txt"
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow
 shot 04g-warm-foreground; note "T5w app in foreground, pid=$(alive); newest log: $(basename "$(applog)")"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
