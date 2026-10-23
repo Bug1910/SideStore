@@ -54,7 +54,10 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
         self.setProgress(10)
 
         self.debugLog("[FetchProvisioningProfiles] Preparing main provisioning profile for \(targetAppBundle.bundleIdentifier)...")
-        let profile = try await self.provisionAndFetchProfile(for: targetAppBundle, parentAppBundle: nil, team: team)
+        // [AutoRefresh] refresh pipelines retry transient anisette / Apple 1100 errors
+        let profile = try await AutoRefreshRetry.run("provisionAndFetchProfile(main)", enabled: self.context.isRefreshPipeline) {
+            try await self.provisionAndFetchProfile(for: targetAppBundle, parentAppBundle: nil, team: team)
+        }
         self.debugLog("[FetchProvisioningProfiles] Main profile prepared successfully for \(effectiveBundleId), expiration: \(String(describing: profile.expirationDate))")
         
         var profiles = [effectiveBundleId: profile]
@@ -71,7 +74,9 @@ class FetchProvisioningProfilesOperation: BasePipelineOperation<InstallAppOperat
             for appExtension in appExtensions {
                 group.addTask {
                     self.verboseLog("[FetchProvisioningProfiles] Preparing extension profile for \(appExtension.bundleIdentifier)...")
-                    let extProfile = try await self.provisionAndFetchProfile(for: appExtension, parentAppBundle: targetAppBundle, team: team)
+                    let extProfile = try await AutoRefreshRetry.run("provisionAndFetchProfile(extension)", enabled: self.context.isRefreshPipeline) {
+                        try await self.provisionAndFetchProfile(for: appExtension, parentAppBundle: targetAppBundle, team: team)
+                    }
                     // Use customized bundle ID if applicable
                     let updatedExtensionBundleId = appExtension.bundleIdentifier.replacingOccurrences(of: targetAppBundle.bundleIdentifier, with: effectiveBundleId)
                     self.verboseLog("[FetchProvisioningProfiles] Extension profile prepared for \(updatedExtensionBundleId)")
