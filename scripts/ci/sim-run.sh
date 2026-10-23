@@ -143,27 +143,36 @@ grep -a -q "min 600s" "$OUT"/app-log-t4.txt 2>/dev/null && note "T4 throttle OK:
 
 # T5: WARM url with the throttle state cleared (test-only: delete throttle keys from simulator UserDefaults)
 step t5-warm-url
-xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 6
+xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2
 xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshLastAttemptDate >> "$OUT/notes.txt" 2>&1
 xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshConsecutiveFailures >> "$OUT/notes.txt" 2>&1
-shot 04g-warm-foreground
+xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow
+shot 04g-warm-foreground; note "T5w app in foreground, pid=$(alive); newest log: $(basename "$(applog)")"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
-grep -a -q "refresh() called" "$OUT/app-log-t5w.txt" 2>/dev/null && note "warm url path: refresh() called OK" || fail "warm url path: no refresh() called in log"
+[ "$(grep -a -c 'refresh() called' "$(applog)" 2>/dev/null)" -gt 0 ] && note "warm url path (fresh process, throttle cleared): refresh() called OK" || fail "warm url path: no refresh() called in newest log"
 
 # T4c: Refresh All BUTTON in My Apps (no URL) - compare with the URL path
 step t4c-button-refresh
 xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow; sleep 2; xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 3; dumpui t4c-launch; shot 04d-launch
 tabi 3 "Refresh All"; shot 04e-myapps; dumpui t4c-myapps
 tapl "Refresh All"; sleep 8; shot 04f-after-refresh-all-button; dumpui t4c-after; chk "T4c"; dumplogs t4c
-grep -a -q "refresh() called" "$OUT/app-log-t4c.txt" 2>/dev/null && note "button path: refresh() called OK" || fail "button path: no refresh() called in log"
+[ "$(grep -a -c 'refresh() called' "$(applog)" 2>/dev/null)" -gt 0 ] && note "button path (fresh process): refresh() called OK" || fail "button path: no refresh() called in newest log"
 
 # T5: settings page
 step t6-settings
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
 tabi 4; shot 05a-settings; dumpui settings
-tapl Advanced; sleep 2; shot 05b-advanced; dumpui advanced
-tapl "User Customizations" || tapl Customization; sleep 2; shot 05c-customizations; dumpui custom
-for i in 1 2 3 4 5 6; do idb ui swipe --udid "$UDID" 200 700 200 250 >/dev/null 2>&1; sleep 1; done; shot 05d-scrolled; dumpui scrolled
+scroll_tap() { # scroll the list until the label is on screen, then tap it; fail if never found
+  for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
+    if python3 scripts/ci/idb_tap.py "$UDID" "$1" --visible >> "$OUT/notes.txt" 2>&1; then note "found+tapped '$1' after $n looks"; return 0; fi
+    idb ui swipe --udid "$UDID" 200 650 200 250 >/dev/null 2>&1; sleep 1
+  done
+  fail "could not find '$1' after scrolling"; return 1
+}
+scroll_tap "User Customizations"; sleep 3; shot 05b-customizations-top; dumpui custom
+if scroll_tap "Auto Refresh on Open"; then shot 05c-auto-refresh-toggle; dumpui toggle; else shot 05c-toggle-missing; fi
+grep -a -q "Auto Refresh on Open" "$OUT/ui-toggle.txt" 2>/dev/null && note "settings: 'Auto Refresh on Open' row present" || fail "settings: 'Auto Refresh on Open' row not on screen"
+shot 05d-after-toggle-tap; dumpui after-toggle
 chk "T5"; dumplogs t5
 
 step idle; collect_crash

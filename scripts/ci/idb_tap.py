@@ -29,6 +29,13 @@ cands = [
     [it for it in items if it.get("type") == "Button" and want in lab(it).lower()],
     [it for it in items if want in (lab(it) + " " + (it.get("AXValue") or "")).lower()],
 ]
+if len(sys.argv) > 3 and sys.argv[3] == "--visible":
+    # only elements whose centre is on screen (above the tab bar, below the nav bar)
+    def vis(it):
+        f = it["frame"]
+        cy = f["y"] + f["height"] / 2
+        return 110 < cy < 770
+    cands = [[it for it in g if vis(it)] for g in cands]
 for group in cands:
     if group:
         f = group[0]["frame"]
