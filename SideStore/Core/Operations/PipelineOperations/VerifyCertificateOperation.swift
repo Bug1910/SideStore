@@ -37,8 +37,11 @@ final class VerifyCertificateOperation: BasePipelineOperation<InstallAppOperatio
         
         do {
             // 2. Obtain active portal certificates directly from Apple Developer Portal
-            let portalCertificates = try await DeveloperPortalProxy.shared.fetchCertificates(team: team)
-            
+            // [AutoRefresh] refresh pipelines retry transient anisette / Apple 1100 errors
+            let portalCertificates = try await AutoRefreshRetry.run("fetchCertificates", enabled: self.context.isRefreshPipeline) {
+                try await DeveloperPortalProxy.shared.fetchCertificates(team: team)
+            }
+
             self.setProgress(30)
             
             let portalCertificateSerials = Set(portalCertificates.compactMap { $0.serialNumber })
