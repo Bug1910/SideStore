@@ -43,6 +43,9 @@ jobs:
             DEVELOPMENT_TEAM=XYZ0123456 ORG_IDENTIFIER=com.SideStore \
             2>&1 | tee build/logs/sim-build.log | xcbeautify --renderer github-actions
 
+      - name: Signing diagnostics + ad-hoc resign with entitlements
+        run: bash scripts/ci/sim-signdiag.sh
+
       - name: Walkthrough
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
