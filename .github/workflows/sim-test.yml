@@ -39,7 +39,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/dd \
             ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
-            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM=XYZ0123456 ORG_IDENTIFIER=com.SideStore \
             2>&1 | tee build/logs/sim-build.log | xcbeautify --renderer github-actions
 
