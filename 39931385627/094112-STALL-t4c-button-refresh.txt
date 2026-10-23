@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't4c-button-refresh'
+pid: 38198
+---- tail
+2026-10-23T09:40:58.379 [D]: [SideStore] Resolving AppVersion context-level conflict. Most likely due to migrating from pre-AppVersion model version. <AppVersion: 0x10bb05040> (entity: AppVersion; id: 0x119c2a580 <x-coredata:///AppVersion/t4C0376AC-A8FA-47EB-8657-1A94A1548A1F22>; data: {
+    app = "0x119c289c0 <x-coredata:///StoreApp/t4C0376AC-A8FA-47EB-8657-1A94A1548A1F3>";
+    appBundleID = "com.SideStore.SideStore";
+    buildVersion = "";
+    channel = stable;
+    date = "2026-09-11 21:25:58 +0000";
+    downloadURL = "https://github.com/SideStore/SideStore/releases/download/alpha/SideStore.ipa";
+    latestVersionApp = "0x119c289c0 <x-coredata:///StoreApp/t4C0376AC-A8FA-47EB-8657-1A94A1548A1F3>";
+    localizedDescription = "#### What's Changed:\n- **fixes for 503 during sign-in**: There were some changes from apple server side which broke 0.6.4 and prior versions and prevent them from signing into sidestore. This temporar";
+    maxOSVersion = nil;
+    minOSVersion = nil;
+    releaseTrack = "0x119c2a6a0 <x-coredata:///ReleaseTrack/t4C0376AC-A8FA-47EB-8657-1A94A1548A1F21>";
+    sha256 = e334f86e6ceeab2e0d886c07611246533f474bb18838cf13ebc09ed1f0d622b5;
+    size = 27770821;
+    sourceID = "sidestore.io/apps-v2.json";
+    version = "0.7.0-20260911.328+6032424a";
+})
+2026-10-23T09:40:58.535 [D]: [TabBarController] viewDidAppear() — TabBarController is now visible
+2026-10-23T09:40:58.536 [D]: [AutoRefresh] skip: last attempt was 70s ago (min 1800s)
+2026-10-23T09:40:58.589 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T09:40:58.696 [D]: [SideJITManager] resolveServerURL: Bonjour discovery did not return any service within timeout
+2026-10-23T09:40:58.696 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T09:40:58.697 [D]: [SideJITManager] resolveServerURL: trying fallback address 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T09:40:58.698 [D]: [SideJITManager] resolveAddressIfNeeded: parsing host='sidejitserver._http._tcp.local', port=8080
+2026-10-23T09:40:58.699 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD descriptor -> searching type='_http._tcp', prefix='sidejitserver'
+2026-10-23T09:40:58.700 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='sidejitserver', domain=nil (timeout: 2.0s)
+2026-10-23T09:40:58.710 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T09:40:58.835 [D]: [LaunchViewController] Transition complete - exiting LaunchViewController, handing off to TabBarController
+2026-10-23T09:41:00.813 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T09:41:00.814 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T09:41:00.814 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T09:41:00.814 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
+2026-10-23T09:41:05.826 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T09:41:05.826 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T09:41:05.827 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T09:41:05.827 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T09:41:07.833 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T09:41:07.833 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T09:41:07.833 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T09:41:07.833 [D]: [AppDelegate] Boot sequence completed.
