@@ -1,0 +1,43 @@
+STALL: screen unchanged >10 s during step 't0-first-launch'
+pid: 26717
+---- tail
+  "com.sidestoreapps.community",
+  "com.stik.stikdebug",
+  "com.livecontainer.source",
+  "com.aoshuang.manicemu",
+  "com.stossy11.MeloNX",
+  "com.chachirie.source",
+  "org.geode-sdk.altsource",
+  "com.sbuga.retrosekai",
+  "org.provenance-emu.provenance",
+  "com.neo.countdown",
+  "me.oatmealdome.altstore",
+  "com.utmapp.repos.UTM",
+  "dev.crystall1ne.alt",
+  "eu.pokemmo.altstore",
+  "dev.theodyssey.sidestore",
+  "stream.yattee",
+  "com.litritt.litsource",
+  "thatstel.la.altsource",
+  "com.deliacheminot.mona"
+]
+2026-10-23T11:06:04.490 [D]: [UpdateKnownSourcesOperation] execute() took: 3.345s
+2026-10-23T11:06:05.202 [D]: [FetchSourceOperation] execute() took: 3.203s
+2026-10-23T11:06:05.219 [D]: [SideStore] Resolving AppVersion context-level conflict. Most likely due to migrating from pre-AppVersion model version. <AppVersion: 0x10f63ad00> (entity: AppVersion; id: 0x10f649100 <x-coredata:///AppVersion/t86F142EF-5C55-49C7-8480-383795E0802E27>; data: {
+    app = "0x10f6486a0 <x-coredata:///StoreApp/t86F142EF-5C55-49C7-8480-383795E0802E8>";
+    appBundleID = "com.SideStore.SideStore";
+    buildVersion = "";
+    channel = stable;
+    date = "2026-09-11 21:25:58 +0000";
+    downloadURL = "https://github.com/SideStore/SideStore/releases/download/alpha/SideStore.ipa";
+    latestVersionApp = "0x10f6486a0 <x-coredata:///StoreApp/t86F142EF-5C55-49C7-8480-383795E0802E8>";
+    localizedDescription = "#### What's Changed:\n- **fixes for 503 during sign-in**: There were some changes from apple server side which broke 0.6.4 and prior versions and prevent them from signing into sidestore. This temporar";
+    maxOSVersion = nil;
+    minOSVersion = nil;
+    releaseTrack = "0x10f649180 <x-coredata:///ReleaseTrack/t86F142EF-5C55-49C7-8480-383795E0802E26>";
+    sha256 = e334f86e6ceeab2e0d886c07611246533f474bb18838cf13ebc09ed1f0d622b5;
+    size = 27770821;
+    sourceID = "sidestore.io/apps-v2.json";
+    version = "0.7.0-20260911.328+6032424a";
+})
+objc[26717]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23E254a/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.4.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10f178398) 
