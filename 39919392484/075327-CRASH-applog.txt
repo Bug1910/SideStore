@@ -1,0 +1,10 @@
+2026-10-23T07:53:17.422 [D]: [AppBootManager] performBootSequence(): Minimuxer check completed
+2026-10-23T07:53:17.581 [D]: Failed to start DatabaseManager. Error: missingAppGroup(reason: "Unable to access the shared App Group container. Refusing to create or use a private sandbox fallback database.")
+2026-10-23T07:53:17.687 [D]: [SideJITManager] resolveServerURL: attempting Bonjour auto-discovery for type='_http._tcp', prefix='SideJITServer' (timeout: 2.0s)
+2026-10-23T07:53:17.706 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='SideJITServer', domain=nil (timeout: 2.0s)
+2026-10-23T07:53:18.026 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T07:53:18.244 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 201ms)
+2026-10-23 07:53:17.481 SideStore[24377:69122] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23 07:53:18.289 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:53:18.310 [D]: LaunchViewController.viewDidAppear() invoked
+2026-10-23T07:53:18.479 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready

@@ -1,0 +1,53 @@
+STALL: screen unchanged >10 s during step 't0-first-launch'
+pid: 24377
+2026-10-23T07:53:17.422 [D]: [AppBootManager] performBootSequence(): Minimuxer check completed
+2026-10-23T07:53:17.581 [D]: Failed to start DatabaseManager. Error: missingAppGroup(reason: "Unable to access the shared App Group container. Refusing to create or use a private sandbox fallback database.")
+2026-10-23T07:53:17.687 [D]: [SideJITManager] resolveServerURL: attempting Bonjour auto-discovery for type='_http._tcp', prefix='SideJITServer' (timeout: 2.0s)
+2026-10-23T07:53:17.706 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='SideJITServer', domain=nil (timeout: 2.0s)
+2026-10-23T07:53:18.026 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T07:53:18.244 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 201ms)
+2026-10-23 07:53:17.481 SideStore[24377:69122] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23 07:53:18.289 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:53:18.310 [D]: LaunchViewController.viewDidAppear() invoked
+2026-10-23T07:53:18.479 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+---- tail
+2026-10-23T07:53:17.687 [D]: [SideJITManager] resolveServerURL: attempting Bonjour auto-discovery for type='_http._tcp', prefix='SideJITServer' (timeout: 2.0s)
+2026-10-23T07:53:17.706 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='SideJITServer', domain=nil (timeout: 2.0s)
+2026-10-23T07:53:18.026 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T07:53:18.244 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 201ms)
+2026-10-23 07:53:17.481 SideStore[24377:69122] Could not load the "Browse" image referenced from a nib in the bundle with identifier "com.SideStore.SideStore.XYZ0123456"
+2026-10-23 07:53:18.289 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:53:18.310 [D]: LaunchViewController.viewDidAppear() invoked
+2026-10-23T07:53:18.479 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T07:53:19.541 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 201ms)
+2026-10-23 07:53:19.542 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:53:19.825 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T07:53:19.832 [D]: [SideJITManager] resolveServerURL: Bonjour discovery did not return any service within timeout
+2026-10-23T07:53:19.832 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T07:53:20.021 [D]: [SideJITManager] resolveServerURL: trying fallback address 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T07:53:20.022 [D]: [SideJITManager] resolveAddressIfNeeded: parsing host='sidejitserver._http._tcp.local', port=8080
+2026-10-23T07:53:20.025 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD descriptor -> searching type='_http._tcp', prefix='sidejitserver'
+2026-10-23T07:53:20.026 [D]: [BonjourDiscovery] resolveFirstService: starting NWBrowser for type='_http._tcp', namePrefix='sidejitserver', domain=nil (timeout: 2.0s)
+2026-10-23T07:53:20.075 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> ready
+2026-10-23T07:53:20.590 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 202ms)
+2026-10-23 07:53:20.591 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:53:22.101 [D]: [BonjourDiscovery] resolveFirstService: timeout reached after 2.0s
+2026-10-23T07:53:22.101 [D]: [BonjourDiscovery] resolveFirstService: browser stateUpdate -> cancelled
+2026-10-23T07:53:22.104 [D]: [SideJITManager] resolveAddressIfNeeded: DNS-SD resolution timed out for descriptor 'sidejitserver._http._tcp.local'
+2026-10-23T07:53:22.104 [D]: [SideJITManager] resolveAddressIfNeeded: resolving .local hostname 'sidejitserver._http._tcp.local' via getaddrinfo
+2026-10-23T07:53:27.192 [D]: [SideJITManager] resolveAddressIfNeeded: resolved IPs for 'sidejitserver._http._tcp.local': []
+2026-10-23T07:53:27.192 [D]: [SideJITManager] resolveAddressIfNeeded: default raw host -> http://sidejitserver._http._tcp.local:8080
+2026-10-23T07:53:27.192 [D]: [SideJITManager] resolveServerURL: fallback resolved to 'http://sidejitserver._http._tcp.local:8080'
+2026-10-23T07:53:27.194 [D]: [SideJITManager] isSideJITServerDetected: testing detection at http://sidejitserver._http._tcp.local:8080
+2026-10-23T07:53:29.277 [D]: [AppBootManager] Cannot find sideJITServer
+2026-10-23T07:53:29.277 [D]: [AppBootManager] performBootSequence(): JIT check completed
+2026-10-23T07:53:29.277 [D]: [AppBootManager] performBootSequence() exited
+2026-10-23T07:53:29.277 [D]: [AppDelegate] Boot sequence completed.
+objc[24377]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23E254a/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.4.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10b7a4398) 
+2026-10-23T07:55:01.360 [D]: [SceneDelegate] sceneDidBecomeActive() invoked
+2026-10-23T07:55:01.625 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 202ms)
+2026-10-23 07:55:01.642 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:55:02.894 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 200ms)
+2026-10-23 07:55:02.896 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
+2026-10-23T07:55:03.941 [V]: [minimuxer] [net] testTCP(10.7.0.1:49152) -> failed: timed out (200ms) (took 202ms)
+2026-10-23 07:55:03.946 SideStore[24377:69122] -canOpenURL: failed for URL: "localdevvpn://" - error: "The operation couldn’t be completed. (OSStatus error -10814.)"
