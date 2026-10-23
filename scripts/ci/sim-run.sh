@@ -144,8 +144,8 @@ grep -a -q "min 600s" "$OUT"/app-log-t4.txt 2>/dev/null && note "T4 throttle OK:
 # T5: WARM url with the throttle state cleared (test-only: delete throttle keys from simulator UserDefaults)
 step t5-warm-url
 xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2
-xcrun simctl spawn "$UDID" defaults write "$BID" autoRefreshLastAttemptDate -date "2020-01-01 00:00:00 +0000" >> "$OUT/notes.txt" 2>&1; xcrun simctl spawn "$UDID" defaults write "$BID" autoRefreshConsecutiveFailures -int 0 >> "$OUT/notes.txt" 2>&1; xcrun simctl spawn "$UDID" defaults read "$BID" autoRefreshLastAttemptDate 2>&1 | tee -a "$OUT/notes.txt"
-xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow
+# NSArgumentDomain trick: a launch argument overrides the stored value; a non-Date string makes the app see "no previous attempt" (test-only, app code untouched)
+xcrun simctl launch "$UDID" "$BID" -autoRefreshLastAttemptDate none -autoRefreshConsecutiveFailures 0 >/dev/null; sleep 12; tapo Allow
 shot 04g-warm-foreground; note "T5w app in foreground, pid=$(alive); newest log: $(basename "$(applog)")"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
 [ "$(grep -a -c 'refresh() called' "$(applog)" 2>/dev/null)" -gt 0 ] && note "warm url path (fresh process, throttle cleared): refresh() called OK" || fail "warm url path: no refresh() called in newest log"
