@@ -144,8 +144,7 @@ grep -a -q "min 600s" "$OUT"/app-log-t4.txt 2>/dev/null && note "T4 throttle OK:
 # T5: WARM url with the throttle state cleared (test-only: delete throttle keys from simulator UserDefaults)
 step t5-warm-url
 xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1; sleep 2
-xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshLastAttemptDate >> "$OUT/notes.txt" 2>&1
-xcrun simctl spawn "$UDID" defaults delete "$BID" autoRefreshConsecutiveFailures >> "$OUT/notes.txt" 2>&1
+CP=$(xcrun simctl get_app_container "$UDID" "$BID" data)/Library/Preferences/$BID.plist; ls -la "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshLastAttemptDate "$CP" >> "$OUT/notes.txt" 2>&1; plutil -remove autoRefreshConsecutiveFailures "$CP" >> "$OUT/notes.txt" 2>&1
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 12; tapo Allow
 shot 04g-warm-foreground; note "T5w app in foreground, pid=$(alive); newest log: $(basename "$(applog)")"
 xcrun simctl openurl "$UDID" "sidestore://refresh-all"; sleep 4; tap_open; sleep 8; shot 04h-warm-url-after; chk "T5w"; dumpui t5w; dumplogs t5w
@@ -163,9 +162,9 @@ step t6-settings
 xcrun simctl launch "$UDID" "$BID" >/dev/null; sleep 8
 tabi 4; shot 05a-settings; dumpui settings
 scroll_tap() { # scroll the list until the label is on screen, then tap it; fail if never found
-  for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
+  for n in $(seq 1 30); do
     if python3 scripts/ci/idb_tap.py "$UDID" "$1" --visible >> "$OUT/notes.txt" 2>&1; then note "found+tapped '$1' after $n looks"; return 0; fi
-    idb ui swipe --udid "$UDID" 200 650 200 250 >/dev/null 2>&1; sleep 1
+    idb ui swipe --udid "$UDID" 200 600 200 350 --duration 1.2 >/dev/null 2>&1; sleep 1.5
   done
   fail "could not find '$1' after scrolling"; return 1
 }
