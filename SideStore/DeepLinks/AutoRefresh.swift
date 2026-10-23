@@ -34,6 +34,11 @@ enum AutoRefresh
     private static let previousExpirationKey = "autoRefreshPreviousSideStoreExpiration"
     private static let resultNotificationIdentifier = "sidestore-auto-refresh-result"
 
+    // Minimum interval for sidestore://refresh-all (short, so a manual re-tap of the shortcut still works).
+    static let minimumURLAttemptInterval: TimeInterval = 10 * 60
+
+    private static let consecutiveFailuresKey = "autoRefreshConsecutiveFailures"
+
     // Request waiting for My Apps to be on screen (cold launch, other tab selected, etc.).
     private(set) static var pendingSource: Source?
 
@@ -61,10 +66,11 @@ enum AutoRefresh
         guard self.pendingSource == nil else { return }
 
         let now = Date()
+        let interval = self.foregroundAttemptInterval()
         if let lastAttempt = UserDefaults.standard.object(forKey: self.lastAttemptDateKey) as? Date,
-           now.timeIntervalSince(lastAttempt) < self.minimumAttemptInterval
+           now.timeIntervalSince(lastAttempt) < interval
         {
-            debugLog("[AutoRefresh] skip: last automatic attempt was \(Int(now.timeIntervalSince(lastAttempt)))s ago")
+            debugLog("[AutoRefresh] skip: last attempt was \(Int(now.timeIntervalSince(lastAttempt)))s ago (min \(Int(interval))s)")
             return
         }
 
@@ -77,9 +83,48 @@ enum AutoRefresh
             return
         }
 
+        // lastAttemptDate is written by markStarted(), so a deferred request (UI busy) can retry on next activation.
         debugLog("[AutoRefresh] earliest expiration in \(Int(remaining / 3600))h, requesting refresh-all")
-        UserDefaults.standard.set(now, forKey: self.lastAttemptDateKey)
         self.request(.foreground)
+    }
+
+    /// sidestore://refresh-all throttle: false (and logged, no notification) if the last started run was < 10 minutes ago.
+    static func urlRequestAllowed() -> Bool
+    {
+        guard let lastAttempt = UserDefaults.standard.object(forKey: self.lastAttemptDateKey) as? Date else { return true }
+
+        let elapsed = Date().timeIntervalSince(lastAttempt)
+        guard elapsed < self.minimumURLAttemptInterval else { return true }
+
+        debugLog("[AutoRefresh] skip url request: last attempt was \(Int(elapsed))s ago (min \(Int(self.minimumURLAttemptInterval))s)")
+        return false
+    }
+
+    /// True while something is presented over the main UI (sign-in, install/import dialog, alerts…).
+    /// Used to postpone the automatic (on open) path; URL requests ignore it.
+    static func isPresentingUI(from viewController: UIViewController) -> Bool
+    {
+        return viewController.presentedViewController != nil ||
+               viewController.view.window?.rootViewController?.presentedViewController != nil
+    }
+
+    // Backoff for the automatic (on open) path: 0 or 1 consecutive failures -> 30 min, 2 -> 2 h, 3+ -> 6 h.
+    private static func foregroundAttemptInterval() -> TimeInterval
+    {
+        let failures = UserDefaults.standard.integer(forKey: self.consecutiveFailuresKey)
+        switch failures
+        {
+        case ..<2: return self.minimumAttemptInterval
+        case 2: return 2 * 60 * 60
+        default: return 6 * 60 * 60
+        }
+    }
+
+    private static func recordOutcome(success: Bool)
+    {
+        let failures = success ? 0 : UserDefaults.standard.integer(forKey: self.consecutiveFailuresKey) + 1
+        UserDefaults.standard.set(failures, forKey: self.consecutiveFailuresKey)
+        debugLog("[AutoRefresh] consecutive failures: \(failures)")
     }
 
     static func markStarted(_ source: Source)
@@ -119,6 +164,7 @@ enum AutoRefresh
            altStoreApp.refreshedDate >= startedAt || (previousExpiration.map { altStoreApp.expirationDate > $0 } ?? false)
         {
             debugLog("[AutoRefresh] previous refresh-all was interrupted, but SideStore was refreshed")
+            self.recordOutcome(success: true)
             self.postNotification(title: "SideStore 續簽成功", body: "成功：到期 " + self.format(altStoreApp.expirationDate))
             return
         }
@@ -143,6 +189,7 @@ enum AutoRefresh
         case .failure(let error):
             let nsError = error as NSError
             debugLog("[AutoRefresh] failed before refreshing: \(nsError.domain) \(nsError.code)")
+            self.recordOutcome(success: false)
             // Only domain + code: notification text is visible on the lock screen.
             self.postNotification(title: "SideStore 續簽失敗", body: "失敗：" + self.errorCode(nsError))
 
@@ -179,12 +226,14 @@ enum AutoRefresh
             {
                 let nsError = failure.1 as NSError
                 debugLog("[AutoRefresh] first failure: \(failure.0) \(nsError.domain) \(nsError.code)")
+                self.recordOutcome(success: false)
 
                 let title = failures.count == 1 ? "SideStore 續簽失敗" : "SideStore 續簽失敗（\(failures.count) 個 App）"
                 self.postNotification(title: title, body: "失敗：" + self.errorCode(nsError))
             }
             else if results.count > cancelledCount
             {
+                self.recordOutcome(success: true)
                 let fallback = InstalledApp.fetchAppsForRefreshingAll(in: DatabaseManager.shared.viewContext).map { $0.expirationDate }.min()
                 if let earliest = expirationDates.min() ?? fallback
                 {

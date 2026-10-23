@@ -127,6 +127,14 @@ private extension TabBarController
     {
         guard _viewDidAppear else { return } // viewDidAppear handles it later.
 
+        if AutoRefresh.pendingSource == .foreground && AutoRefresh.isPresentingUI(from: self)
+        {
+            // Automatic path: don't switch tabs / pop while the user is in a dialog. Retried on next activation.
+            _ = AutoRefresh.consumePendingSource()
+            debugLog("[AutoRefresh] postpone automatic refresh: UI is presented")
+            return
+        }
+
         self.selectedIndex = Tab.myApps.rawValue
 
         // My Apps only refreshes while its root list is on screen.

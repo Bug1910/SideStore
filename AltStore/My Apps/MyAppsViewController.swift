@@ -860,6 +860,9 @@ private extension MyAppsViewController
     // Body of the "Refresh All" button. Also used by sidestore://refresh-all and auto refresh on open (AutoRefresh.swift).
     func performRefreshAllApps(completion: ((Result<[String: Result<InstalledApp, Error>], Error>) -> Void)?)
     {
+        // Set synchronously (not inside the Task) so a second request arriving right after sees it.
+        self.isRefreshingAllApps = true
+
         Task { @MainActor in
             let installedApps = InstalledApp.fetchAppsForRefreshingAll(in: DatabaseManager.shared.viewContext)
             guard !installedApps.isEmpty else {
@@ -877,6 +880,8 @@ private extension MyAppsViewController
                     error = OperationError.noInstalledApps
                 }
                 
+                self.isRefreshingAllApps = false
+
                 let toastView = ToastView(error: error)
                 toastView.show(in: self)
                 completion?(.failure(error))
@@ -1813,6 +1818,20 @@ private extension MyAppsViewController
         // Not on screen yet (cold launch / other tab): keep it pending for viewDidAppear.
         guard self.view.window != nil && self._viewDidAppear && DatabaseManager.shared.isStarted else { return }
         guard let source = AutoRefresh.consumePendingSource() else { return }
+
+        switch source
+        {
+        case .url:
+            // Throttle (10 min); logged inside, no notification.
+            guard AutoRefresh.urlRequestAllowed() else { return }
+
+        case .foreground:
+            // Automatic path: postpone (no notification) while a dialog is up or an app is being installed/refreshed.
+            guard !AutoRefresh.isPresentingUI(from: self) && self.sideloadingProgress == nil && self.refreshGroup == nil else {
+                debugLog("[AutoRefresh] postpone automatic refresh: UI is presented or an install/refresh is running")
+                return
+            }
+        }
 
         guard !self.isRefreshingAllApps else {
             // No notification for the skipped request; a run started by AutoRefresh still
